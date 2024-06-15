@@ -1,11 +1,1 @@
----
-description: Blablabla
----
-
-# Page test
-
-|      |      |      |
-| ---- | ---- | ---- |
-| test | test | test |
-|      |      |      |
-|      |      |      |
+### Stratefi is a web3 project
