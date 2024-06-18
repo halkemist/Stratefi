@@ -1,3 +1,5 @@
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 const Header = () => {
   return (
     <nav className="navbar">
@@ -5,7 +7,7 @@ const Header = () => {
             Logo
         </div>
         <div>
-            Connect Wallet
+            <ConnectButton />
         </div>
     </nav>
   )
