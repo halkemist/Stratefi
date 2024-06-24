@@ -8,7 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { WagmiProvider } from 'wagmi'
 
 // RainbowKit config
-import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { darkTheme, getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
 // Chains
 import { hardhat, arbitrum } from 'wagmi/chains';
@@ -26,7 +26,10 @@ const RainbowKitAndWagmiProvider = ({ children }) => {
   return (
     <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-            <RainbowKitProvider>
+            <RainbowKitProvider theme={darkTheme({
+              accentColor:"#000000",
+              borderRadius: "small",
+            })}>
             { children }
             </RainbowKitProvider>
         </QueryClientProvider>

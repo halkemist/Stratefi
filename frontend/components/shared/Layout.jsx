@@ -3,11 +3,11 @@ import Footer from './Footer';
 
 const Layout = ({ children }) => {
   return (
-    <div className="app">
+    <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="main">
-            { children }
-        </main>
+          <main className="flex-grow p-8">
+              { children }
+          </main>
         <Footer />
     </div>
   )

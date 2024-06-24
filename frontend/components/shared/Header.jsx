@@ -1,14 +1,7 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-
 const Header = () => {
   return (
-    <nav className="navbar">
-        <div className="">
-            Logo
-        </div>
-        <div>
-            <ConnectButton />
-        </div>
+    <nav className="flex justify-between p-8">
+      <h1 className="text-xl font-bold">STRATEFI</h1>
     </nav>
   )
 }
