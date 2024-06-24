@@ -15,7 +15,7 @@ import { hardhat, arbitrum } from 'wagmi/chains';
 
 const config = getDefaultConfig({
     appName: 'Stratefi',
-    projectId: 'YOUR_PROJECT_ID', // todo: create a dotenv file and get id from wallet connect
+    projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID, // todo: create a dotenv file and get id from wallet connect
     chains: [arbitrum, hardhat],
     ssr: true, // If your dApp uses server side rendering (SSR)
 });
