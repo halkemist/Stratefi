@@ -26,7 +26,6 @@ export default function RootLayout({ children }) {
         )}>
         <RainbowKitAndWagmiProvider>
             {children}
-            <Footer/>
         </RainbowKitAndWagmiProvider>
       </body>
     </html>
