@@ -3,7 +3,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 
-const Header = () => {
+const HeaderLanding = () => {
 
   const { isConnected } = useAccount();
 
@@ -21,4 +21,4 @@ const Header = () => {
   )
 }
 
-export default Header;
+export default HeaderLanding;

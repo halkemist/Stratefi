@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 
 // Components
-import Layout from "@/components/shared/Layout";
 import RainbowKitAndWagmiProvider from "./RainbowKitAndWagmiProvider";
+import Footer from "@/components/shared/Footer";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -25,9 +25,8 @@ export default function RootLayout({ children }) {
           fontSans.variable
         )}>
         <RainbowKitAndWagmiProvider>
-          <Layout>
             {children}
-          </Layout>
+            <Footer/>
         </RainbowKitAndWagmiProvider>
       </body>
     </html>
