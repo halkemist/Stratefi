@@ -1,6 +1,21 @@
+'use client';
+
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
+import { useAccount } from "wagmi";
+import { useEffect } from "react";
+import { redirect } from "next/navigation";
+
 export default function Home() {
+
+  const { isConnected } = useAccount();
+
+  useEffect(() => {
+    if (isConnected == true) {
+      redirect('/dashboard')
+    }
+  }, [isConnected]);
+
   return (
     <div className="flex justify-between">
       <div className="w-1/2 py-10 px-20">
