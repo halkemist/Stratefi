@@ -1,7 +1,7 @@
-const page = () => {
+const Dashboard = () => {
   return (
     <div>In progress...</div>
   )
 }
 
-export default page
+export default Dashboard;

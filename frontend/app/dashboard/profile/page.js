@@ -1,7 +1,7 @@
-const page = () => {
+const Profile = () => {
   return (
     <div>In progress...</div>
   )
 }
 
-export default page
+export default Profile;

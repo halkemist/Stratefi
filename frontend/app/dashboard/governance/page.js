@@ -1,7 +1,7 @@
-const page = () => {
+const Governance = () => {
   return (
     <div>Governance</div>
   )
 }
 
-export default page
+export default Governance;

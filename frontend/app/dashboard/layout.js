@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import Navigation from "@/components/shared/Navigation";
 import Footer from "@/components/shared/Footer";
 
-const layout = ({ children }) => {
+const DashboardLayout = ({ children }) => {
 
   const { isConnected } = useAccount();
 
@@ -31,4 +31,4 @@ const layout = ({ children }) => {
   )
 }
 
-export default layout
+export default DashboardLayout;
