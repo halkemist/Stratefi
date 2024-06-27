@@ -19,6 +19,9 @@ jobs:
       - name: Check current directory
         run: pwd
 
+      - name: Check current folders
+        run: ls
+
       - name: Use Node.js 20.12.2
         uses: actions/setup-node@v1
         with:
