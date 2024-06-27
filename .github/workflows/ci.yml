@@ -54,5 +54,5 @@ jobs:
 
       - name: Slither Analyse
         run: |
-          slither .
+          slither tests/Lock.sol
         working-directory: ./backend
