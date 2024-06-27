@@ -52,7 +52,12 @@ jobs:
           pip install slither-analyzer
         working-directory: ./backend
 
+      - name: Update dependencies
+        run: |
+          yarn install
+        working-directory: ./backend  
+
       - name: Slither Analyse
         run: |
-          slither contracts/Lock.sol
+          slither .
         working-directory: ./backend
