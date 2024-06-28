@@ -95,11 +95,8 @@ contract StrateFiGovernance is Governor, GovernorSettings, GovernorCountingSimpl
         override(Governor)
         returns (uint256)
     {
-        address[] memory targets = new address[](1);
         targets[0] = 0x0000000000000000000000000000000000000000;
-        uint256[] memory values = new uint256[](1);
         values[0] = 0;
-        bytes[] memory calldatas = new bytes[](1);
         calldatas[0] = "";
 
         address proposer = _msgSender();
