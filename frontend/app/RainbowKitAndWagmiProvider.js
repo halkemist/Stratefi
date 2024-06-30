@@ -11,12 +11,12 @@ import { WagmiProvider } from 'wagmi'
 import { darkTheme, getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
 // Chains
-import { hardhat, arbitrum } from 'wagmi/chains';
+import { hardhat } from 'wagmi/chains';
 
 const config = getDefaultConfig({
     appName: 'Stratefi',
     projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID, // todo: create a dotenv file and get id from wallet connect
-    chains: [arbitrum, hardhat],
+    chains: [hardhat],
     ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

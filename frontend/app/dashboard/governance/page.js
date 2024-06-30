@@ -4,21 +4,33 @@
 import { contractAbi, contractAddress } from "@/constants/governance";
 
 // Wagmi
-import { useReadContract, useWatchContractEvent, useWriteContract } from "wagmi";
+import { useWatchContractEvent, useWriteContract, useWatchBlockNumber } from "wagmi";
 
 // React
 import { useState } from "react";
 
 // UI
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge"
 
 const Governance = () => {
+
+  const [ currentBlockNumber, setCurrentBlockNumber ] = useState(0);
+
+  useWatchBlockNumber({
+    onBlockNumber(blockNumber) {
+      setCurrentBlockNumber(Number(blockNumber))
+    },
+  });
 
   const [ proposals, setProposals ] = useState();
 
   useWatchContractEvent({
     address: contractAddress,
     abi: contractAbi,
+    fromBlock: BigInt(0),
     eventName: "ProposalCreated",
     onLogs(logs) {
       console.log(logs)
@@ -26,13 +38,31 @@ const Governance = () => {
         setProposals(logs);
       }
     }
-  })
+  });
+
+  const timeRemaining = (voteEnd) => {
+    if (voteEnd && currentBlockNumber) {
+      const blocksRemaining = voteEnd - currentBlockNumber;
+      const secondsPerBlock = 13;
+      const timeRemainingInSeconds = blocksRemaining * secondsPerBlock;
+      const timeRemainingInMinutes = timeRemainingInSeconds / 60;
+      const timeRemainingInHours = timeRemainingInMinutes / 60;
+      return timeRemainingInHours / 24;
+    }
+    return 0;
+  };
+
+  const [ proposalInput, setProposalInput ] = useState("");
+
+  const handleInputChange = (event) => {
+    setProposalInput(event.target.value);
+  };
 
   const { writeContractAsync } = useWriteContract();
 
   const handleAddProposal = async() => {
     try {
-      const { data: result, onSuccess: isSuccess } = await writeContractAsync({
+      await writeContractAsync({
         abi: contractAbi,
         address: contractAddress,
         functionName: "propose",
@@ -40,32 +70,42 @@ const Governance = () => {
           ["0x0000000000000000000000000000000000000000"],
           [0],
           ["0x"],
-          "hello, it's the second proposal of the stratefi dapp !"
+          proposalInput
         ]
       })
+
+      setProposalInput("");
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
-    
-  }
+  };
 
   return (
     <div>
-      <Button onClick={handleAddProposal}>PROPOSE</Button>
+      <h2 className="text-3xl font-bold">Proposals</h2>
+      <div className="flex my-4">
+        <Input onChange={handleInputChange} type="text" placeholder="Description" className="w-1/2 mr-4 rounded-xl"/>
+        <Button onClick={handleAddProposal}>Add New Proposal</Button>
+      </div>
       {!proposals || proposals.length === 0 ? (
-        <div>Aucune proposition</div>
+        <div>No proposals</div>
       ) : (
-        <ul>
+        <div className="flex flex-col">
           {proposals.map((proposal, index) => (
-            <li key={index}>
-              <div>{Number(proposal.args.proposalId)}</div>
-              <div>By: {proposal.args.proposer}</div>
-              <div>{proposal.args.description}</div>
-              <div>{Number(proposal.args.voteEnd)}</div>
-            </li>
+            <div key={index} className="border rounded-xl p-4 my-4">
+              <div className="flex justify-between">
+                <div className="flex items-center">
+                  <Avatar className="mr-1">
+                    <AvatarFallback>T</AvatarFallback>
+                  </Avatar>
+                  <div>{proposal.args.proposer}</div>
+                </div>
+                <Badge variant="secondary">{timeRemaining(Number(proposal.args.voteEnd))} days</Badge>
+              </div>
+              <p className="p-4">{proposal.args.description}</p>
+            </div>
           ))}
-          <li></li>
-        </ul>
+        </div>
       )}
     </div>
   )
