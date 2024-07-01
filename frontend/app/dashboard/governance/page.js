@@ -2,12 +2,13 @@
 
 // Constants
 import { contractAbi, contractAddress } from "@/constants/governance";
+import { config } from "@/app/config";
 
 // Wagmi
-import { useWatchContractEvent, useWriteContract, useWatchBlockNumber } from "wagmi";
+import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
 
 // React
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // UI
 import { Button } from "@/components/ui/button";
@@ -18,9 +19,21 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Governance = () => {
 
+  // Constants //
+
+  const { address } = useAccount();
   const { toast } = useToast();
+  const { writeContract } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
+
+  // State //
 
   const [ currentBlockNumber, setCurrentBlockNumber ] = useState(0);
+  const [ proposals, setProposals ] = useState();
+  const [ proposalInput, setProposalInput ] = useState("");
+  const [ votes, setVotes ] = useState({});
+
+  // Watch //
 
   useWatchBlockNumber({
     onBlockNumber(blockNumber) {
@@ -28,7 +41,6 @@ const Governance = () => {
     },
   });
 
-  const [ proposals, setProposals ] = useState();
 
   useWatchContractEvent({
     address: contractAddress,
@@ -43,25 +55,41 @@ const Governance = () => {
     }
   });
 
-  const timeRemaining = (voteEnd) => {
-    if (voteEnd && currentBlockNumber) {
-      const blocksRemaining = voteEnd - currentBlockNumber;
-      const secondsPerBlock = 13;
-      const timeRemainingInSeconds = blocksRemaining * secondsPerBlock;
-      const timeRemainingInMinutes = timeRemainingInSeconds / 60;
-      const timeRemainingInHours = timeRemainingInMinutes / 60;
-      return Math.round(timeRemainingInHours / 24);
-    }
-    return 0;
-  };
-
-  const [ proposalInput, setProposalInput ] = useState("");
+  // Handle //
 
   const handleInputChange = (event) => {
     setProposalInput(event.target.value);
   };
 
-  const { writeContractAsync } = useWriteContract();
+  const handleVoteSubmit = (index, proposalId) => {
+    const vote = votes[index];
+    if (vote !== undefined && proposalId) {
+
+      writeContract({
+        abi: contractAbi,
+        address: contractAddress,
+        functionName: "castVote",
+        args: [
+          [proposalId],
+          [vote]
+        ]
+      }, {onError: (error) => {
+        toast({
+          variant: "destructive",
+          title: "Vote error.",
+          description: error.cause.message
+        }) 
+      }});
+
+    } else {
+
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.",
+        description: "No vote selected for proposal"
+      })
+    }
+  };
 
   const handleAddProposal = async() => {
     try {
@@ -83,7 +111,6 @@ const Governance = () => {
     }
   };
 
-  const [ votes, setVotes ] = useState({});
 
   const handleVoteSelection = (index, choice) => {
     setVotes((prevVotes) => ({
@@ -92,35 +119,39 @@ const Governance = () => {
     }));
   };
 
-  const { writeContract } = useWriteContract();
+  // Other functions //
 
-  const handleVoteSubmit = (index, proposalId) => {
-    const vote = votes[index];
-    if (vote !== undefined && proposalId) {
-
-      writeContract({
-        abi: contractAbi,
-        address: contractAddress,
-        functionName: "castVote",
-        args: [
-          [proposalId],
-          [vote]
-        ]
-      }, {onError: (error) => {
-        toast({
-          variant: "destructive",
-          title: "Vote error.",
-          description: error.cause.message
-        }) 
-      }});
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "No vote selected for proposal"
-      })
+  const timeRemaining = (voteEnd) => {
+    if (voteEnd && currentBlockNumber) {
+      const blocksRemaining = voteEnd - currentBlockNumber;
+      const secondsPerBlock = 13;
+      const timeRemainingInSeconds = blocksRemaining * secondsPerBlock;
+      const timeRemainingInMinutes = timeRemainingInSeconds / 60;
+      const timeRemainingInHours = timeRemainingInMinutes / 60;
+      return Math.round(timeRemainingInHours / 24);
     }
+    return 0;
   };
+
+  const getProposalState = (proposalId) => {
+    const data = config.readContract({
+      abi: contractAbi,
+      address: contractAddress,
+      functionName: 'state',
+      account: address,
+      args: [
+        [proposalId]
+      ]
+    })
+    return data;
+  }
+
+  useEffect(() => {
+    proposals.forEach(element => {
+      element.args.state = getProposalState(element.args.proposalId)
+      console.log(element.args.state.then((result) => {return result}))
+    });
+  }, [proposals]);
 
   return (
     <div>
@@ -169,6 +200,7 @@ const Governance = () => {
                   <Button className="border rounded-xl p-1 my-1 w-36" onClick={() => handleVoteSubmit(index, proposal.args.proposalId)}>
                     Vote
                   </Button>
+                  {proposal.args.state ? (<div></div>) : (<div></div>)}
                 </div>
               </div>
             </div>

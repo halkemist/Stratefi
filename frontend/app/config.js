@@ -1,9 +1,7 @@
-import { http, createConfig } from "wagmi";
-import { hardhat } from "wagmi/chains";
+import { http, createPublicClient } from "viem";
+import { hardhat } from "viem/chains";
 
-export const config = createConfig({
-    chains: [hardhat],
-    transports: {
-        [hardhat.id]: http(),
-    }
+export const config = createPublicClient({
+    chain: hardhat,
+    transport: http()
 })
