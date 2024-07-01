@@ -41,7 +41,6 @@ const Governance = () => {
     },
   });
 
-
   useWatchContractEvent({
     address: contractAddress,
     abi: contractAbi,
@@ -147,10 +146,14 @@ const Governance = () => {
   }
 
   useEffect(() => {
-    proposals.forEach(element => {
-      element.args.state = getProposalState(element.args.proposalId)
-      console.log(element.args.state.then((result) => {return result}))
-    });
+    if(proposals && proposals.length > 0) {
+      proposals.forEach(element => {
+        getProposalState(element.args.proposalId)
+        .then((response) => {
+          element.args.state = response
+        })
+      });
+    }
   }, [proposals]);
 
   return (
@@ -200,7 +203,7 @@ const Governance = () => {
                   <Button className="border rounded-xl p-1 my-1 w-36" onClick={() => handleVoteSubmit(index, proposal.args.proposalId)}>
                     Vote
                   </Button>
-                  {proposal.args.state ? (<div></div>) : (<div></div>)}
+                  {proposal.args.state ? (<div>{proposal.args.state}</div>) : (<div></div>)}
                 </div>
               </div>
             </div>
