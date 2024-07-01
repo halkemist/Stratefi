@@ -5,7 +5,9 @@ import "./globals.css";
 
 // Components
 import RainbowKitAndWagmiProvider from "./RainbowKitAndWagmiProvider";
-import Footer from "@/components/shared/Footer";
+
+// UI
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -27,6 +29,7 @@ export default function RootLayout({ children }) {
         <RainbowKitAndWagmiProvider>
             {children}
         </RainbowKitAndWagmiProvider>
+        <Toaster/>
       </body>
     </html>
   );
