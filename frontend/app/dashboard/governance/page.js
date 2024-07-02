@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import Link from "next/link";
 
 const Governance = () => {
 
@@ -222,65 +223,73 @@ const Governance = () => {
       <div className="flex my-4">
         <Input onChange={handleInputChange} type="text" placeholder="Description" className="w-1/2 mr-4 rounded-xl"/>
         <Button onClick={handleAddProposal}>Add New Proposal</Button>
+        <Button className="ml-2">
+          <Link href="/dashboard/governance/delegate">
+          Delegate
+          </Link>
+        </Button>
       </div>
-      {!proposals || proposals.length === 0 ? (
-        <div>No proposals</div>
+      {!proposals ? (
+        <div>Loading...</div>
       ) : (
-        <div className="flex flex-col w-2/3 max-height-60 overflow-y-scroll">
-          {proposals.map((proposal, index) => (
-            <div key={index} className="border rounded-xl p-4 my-4">
-              <div className="flex justify-between">
-                <div className="flex items-center">
-                  <Avatar className="mr-1">
-                    <AvatarFallback>T</AvatarFallback>
-                  </Avatar>
-                  <div>{proposal.args.proposer}</div>
-                </div>
-                <Badge variant="secondary">{timeRemaining(Number(proposal.args.voteEnd))} days</Badge>
-              </div>
-              <p className="p-4">{proposal.args.description}</p>
-              <div className="px-4 flex justify-between">
-                {proposal.args.state === "Active" ? (<div>
-                  <div className="mb-2 font-bold">Cast your vote</div>
-                  <div className="w-36 text-center">
-                    <div
-                      className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 1 ? 'bg-green-200' : ''}`}
-                      onClick={() => handleVoteSelection(index, 1)}
-                    >
-                      For
-                    </div>
-                    <div
-                      className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 0 ? 'bg-red-200' : ''}`}
-                      onClick={() => handleVoteSelection(index, 0)}
-                    >
-                      Against
-                    </div>
-                    <div
-                      className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 2 ? 'bg-yellow-200' : ''}`}
-                      onClick={() => handleVoteSelection(index, 2)}
-                    >
-                      Abstain
-                    </div>
-                    <Button className="border rounded-xl p-1 my-1 w-36" onClick={() => handleVoteSubmit(index, proposal.args.proposalId)}>
-                      Vote
-                    </Button>
+        <>
+          <div className="mb-2">My voting power: </div>
+          <div className="flex flex-col w-2/3 max-height-60 overflow-y-scroll">
+            {proposals.map((proposal, index) => (
+              <div key={index} className="border rounded-xl p-4 my-4">
+                <div className="flex justify-between">
+                  <div className="flex items-center">
+                    <Avatar className="mr-1">
+                      <AvatarFallback>T</AvatarFallback>
+                    </Avatar>
+                    <div>{proposal.args.proposer}</div>
                   </div>
-                </div>):(<></>)}
-                <div>
-                  <div className="mb-2 font-bold">Current results</div>
-                  <div className="text-center">
-                    <div>For: {Number(proposal.args.votes[0])}</div>
-                    <div>Against: {Number(proposal.args.votes[1])}</div>
-                    <div>Abstain: {Number(proposal.args.votes[2])}</div>
+                  <Badge variant="secondary">{timeRemaining(Number(proposal.args.voteEnd))} days</Badge>
+                </div>
+                <p className="p-4">{proposal.args.description}</p>
+                <div className="px-4 flex justify-between">
+                  {proposal.args.state === "Active" ? (<div>
+                    <div className="mb-2 font-bold">Cast your vote</div>
+                    <div className="w-36 text-center">
+                      <div
+                        className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 1 ? 'bg-green-200' : ''}`}
+                        onClick={() => handleVoteSelection(index, 1)}
+                      >
+                        For
+                      </div>
+                      <div
+                        className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 0 ? 'bg-red-200' : ''}`}
+                        onClick={() => handleVoteSelection(index, 0)}
+                      >
+                        Against
+                      </div>
+                      <div
+                        className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 2 ? 'bg-yellow-200' : ''}`}
+                        onClick={() => handleVoteSelection(index, 2)}
+                      >
+                        Abstain
+                      </div>
+                      <Button className="border rounded-xl p-1 my-1 w-36" onClick={() => handleVoteSubmit(index, proposal.args.proposalId)}>
+                        Vote
+                      </Button>
+                    </div>
+                  </div>):(<></>)}
+                  <div>
+                    <div className="mb-2 font-bold">Current results</div>
+                    <div className="text-center">
+                      <div>For: {Number(proposal.args.votes[0])}</div>
+                      <div>Against: {Number(proposal.args.votes[1])}</div>
+                      <div>Abstain: {Number(proposal.args.votes[2])}</div>
+                    </div>
+                  </div>
+                  <div className="content-end">
+                    <Badge variant="secondary">{proposal.args.state}</Badge>
                   </div>
                 </div>
-                <div className="content-end">
-                  <Badge variant="secondary">{proposal.args.state}</Badge>
-                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )
