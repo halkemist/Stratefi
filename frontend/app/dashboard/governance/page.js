@@ -5,7 +5,7 @@ import { contractAbi, contractAddress } from "@/constants/governance";
 import { config } from "@/app/config";
 
 // Wagmi
-import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
+import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount, useReadContract } from "wagmi";
 
 // React
 import { useEffect, useState } from "react";
@@ -132,6 +132,14 @@ const Governance = () => {
     return 0;
   };
 
+  /// Proposal State
+  /// 0: Proposed
+  /// 1: Active
+  /// 2: Succeeded
+  /// 3: Queued
+  /// 4: Executed
+  /// 5: Defeated
+  /// 6: Expired
   const getProposalState = (proposalId) => {
     const data = config.readContract({
       abi: contractAbi,
@@ -145,12 +153,32 @@ const Governance = () => {
     return data;
   }
 
+  const beautifulState = (state) => {
+    const expr = state
+    switch (expr) {
+      case 0:
+        return "Proposed";
+      case 1:
+        return "Active";
+      case 2:
+        return "Succeeded";
+      case 3:
+        return "Queued";
+      case 4:
+        return "Executed";
+      case 5:
+        return "Defeated";
+      case 6:
+        return "Expired";
+    }
+  }
+
   useEffect(() => {
     if(proposals && proposals.length > 0) {
       proposals.forEach(element => {
         getProposalState(element.args.proposalId)
         .then((response) => {
-          element.args.state = response
+          element.args.state = beautifulState(response)
         })
       });
     }
@@ -180,30 +208,34 @@ const Governance = () => {
               </div>
               <p className="p-4">{proposal.args.description}</p>
               <div className="px-4">
-                <div className="mb-2 font-bold">Cast your vote</div>
-                <div className="w-36 text-center">
-                <div
-                    className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 1 ? 'bg-green-200' : ''}`}
-                    onClick={() => handleVoteSelection(index, 1)}
-                  >
-                    For
-                  </div>
+                <div>
+                  <div className="mb-2 font-bold">Cast your vote</div>
+                  <div className="w-36 text-center">
                   <div
-                    className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 0 ? 'bg-red-200' : ''}`}
-                    onClick={() => handleVoteSelection(index, 0)}
-                  >
-                    Against
+                      className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 1 ? 'bg-green-200' : ''}`}
+                      onClick={() => handleVoteSelection(index, 1)}
+                    >
+                      For
+                    </div>
+                    <div
+                      className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 0 ? 'bg-red-200' : ''}`}
+                      onClick={() => handleVoteSelection(index, 0)}
+                    >
+                      Against
+                    </div>
+                    <div
+                      className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 2 ? 'bg-yellow-200' : ''}`}
+                      onClick={() => handleVoteSelection(index, 2)}
+                    >
+                      Abstain
+                    </div>
+                    <Button className="border rounded-xl p-1 my-1 w-36" onClick={() => handleVoteSubmit(index, proposal.args.proposalId)}>
+                      Vote
+                    </Button>
                   </div>
-                  <div
-                    className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 2 ? 'bg-yellow-200' : ''}`}
-                    onClick={() => handleVoteSelection(index, 2)}
-                  >
-                    Abstain
-                  </div>
-                  <Button className="border rounded-xl p-1 my-1 w-36" onClick={() => handleVoteSubmit(index, proposal.args.proposalId)}>
-                    Vote
-                  </Button>
-                  {proposal.args.state ? (<div>{proposal.args.state}</div>) : (<div></div>)}
+                </div>
+                <div>
+                  <Badge variant="secondary">{proposal.args.state}</Badge>
                 </div>
               </div>
             </div>
