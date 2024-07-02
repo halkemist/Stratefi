@@ -5,7 +5,8 @@ import { contractAbi, contractAddress } from "@/constants/governance";
 import { config } from "@/app/config";
 
 // Wagmi
-import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount, useReadContract } from "wagmi";
+import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount, useReadContract, getEnsAvatar } from "wagmi";
+import { normalize } from "viem/ens";
 
 // React
 import { useEffect, useState } from "react";
