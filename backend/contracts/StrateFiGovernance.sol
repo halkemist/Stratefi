@@ -2,24 +2,23 @@
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity 0.8.20;
 
-import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorSettings.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {Governor} from "@openzeppelin/contracts/governance/Governor.sol";
+import {GovernorCountingSimple} from "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol";
+import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
 /**
  * @title Governance contract for StrateFi DAO.
  * @dev Extends various OpenZeppelin governance modules.
  */
-contract StrateFiGovernance is Governor, GovernorSettings, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction {
+contract StrateFiGovernance is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction {
     /**
      * @dev Initialize the contract.
      * @param _token The address of the governance token used for voting.
      */
     constructor(IVotes _token)
         Governor("StrateFiGovernance")
-        GovernorSettings(0 days, 2 weeks, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(66)
     {}
@@ -30,52 +29,24 @@ contract StrateFiGovernance is Governor, GovernorSettings, GovernorCountingSimpl
      * @notice Override function to custom the voting delay value.
      * @return The voting delay required for voting.
      */
-    function votingDelay()
-        public
-        view
-        override(Governor, GovernorSettings)
-        returns (uint256)
-    {
-        return super.votingDelay();
+    function votingDelay() public pure virtual override returns (uint256) {
+        return 0;
     }
 
     /**
      * @notice Override function to custom the voting period value.
      * @return The voting period required for voting.
      */
-    function votingPeriod()
-        public
-        view
-        override(Governor, GovernorSettings)
-        returns (uint256)
-    {
-        return super.votingPeriod();
-    }
-
-    /**
-     * @notice Override function to custom the quorum value (min voters to accept the proposal).
-     * @return The quorum required for voting.
-     */
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(Governor, GovernorVotesQuorumFraction)
-        returns (uint256)
-    {
-        return super.quorum(blockNumber);
+    function votingPeriod() public pure virtual override returns (uint256) {
+        return 100800; // 2 weeks
     }
 
     /**
      * @notice Override function to custom the proposal threshold value.
      * @return The min of votes required to create a proposal.
      */
-    function proposalThreshold()
-        public
-        view
-        override(Governor, GovernorSettings)
-        returns (uint256)
-    {
-        return super.proposalThreshold();
+    function proposalThreshold() public pure virtual override returns (uint256) {
+        return 0;
     }
 
     /**
