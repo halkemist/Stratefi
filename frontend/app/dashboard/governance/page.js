@@ -45,11 +45,36 @@ const Governance = () => {
     address: contractAddress,
     abi: contractAbi,
     fromBlock: BigInt(0),
-    eventName: "ProposalCreated",
+    eventName: "",
     onLogs(logs) {
       console.log(logs)
+    }
+  })
+
+  useWatchContractEvent({
+    address: contractAddress,
+    abi: contractAbi,
+    fromBlock: BigInt(0),
+    eventName: "ProposalCreated",
+    onLogs(logs) {
+      //console.log(logs)
       if (logs.length > 0) {
-        setProposals(logs);
+        logs.forEach(element => {
+          getProposalState(element.args.proposalId)
+          .then((response) => {
+            element.args.state = beautifulState(response)
+          })
+          getProposalVotes(element.args.proposalId)
+          .then((response) => {
+            console.log(response)
+            element.args.votes = response
+          }).catch((error) => {
+            console.log(error)
+          })
+        });
+        setTimeout(() => {
+          setProposals(logs)
+        }, 1000)
       }
     }
   });
@@ -63,7 +88,6 @@ const Governance = () => {
   const handleVoteSubmit = (index, proposalId) => {
     const vote = votes[index];
     if (vote !== undefined && proposalId) {
-
       writeContract({
         abi: contractAbi,
         address: contractAddress,
@@ -102,7 +126,13 @@ const Governance = () => {
           ["0x"],
           proposalInput
         ]
-      })
+      }, {onError: (error) => {
+        toast({
+          variant: "destructive",
+          title: "Vote error",
+          description: error.cause.message
+        })
+      }})
 
       setProposalInput("");
     } catch (err) {
@@ -153,6 +183,18 @@ const Governance = () => {
     return data;
   }
 
+  const getProposalVotes = (proposalId) => {
+    const data = config.readContract({
+      abi: contractAbi,
+      address: contractAddress,
+      functionName: 'proposalVotes',
+      args: [
+        [proposalId],
+      ]
+    })
+    return data;
+  }
+
   const beautifulState = (state) => {
     const expr = state
     switch (expr) {
@@ -172,17 +214,6 @@ const Governance = () => {
         return "Expired";
     }
   }
-
-  useEffect(() => {
-    if(proposals && proposals.length > 0) {
-      proposals.forEach(element => {
-        getProposalState(element.args.proposalId)
-        .then((response) => {
-          element.args.state = beautifulState(response)
-        })
-      });
-    }
-  }, [proposals]);
 
   return (
     <div>
@@ -207,11 +238,11 @@ const Governance = () => {
                 <Badge variant="secondary">{timeRemaining(Number(proposal.args.voteEnd))} days</Badge>
               </div>
               <p className="p-4">{proposal.args.description}</p>
-              <div className="px-4">
-                <div>
+              <div className="px-4 flex justify-between">
+                {proposal.args.state === "Active" ? (<div>
                   <div className="mb-2 font-bold">Cast your vote</div>
                   <div className="w-36 text-center">
-                  <div
+                    <div
                       className={`border rounded-xl p-1 mb-1 cursor-pointer ${votes[index] === 1 ? 'bg-green-200' : ''}`}
                       onClick={() => handleVoteSelection(index, 1)}
                     >
@@ -233,8 +264,16 @@ const Governance = () => {
                       Vote
                     </Button>
                   </div>
-                </div>
+                </div>):(<></>)}
                 <div>
+                  <div className="mb-2 font-bold">Current results</div>
+                  <div className="text-center">
+                    <div>For: {Number(proposal.args.votes[0])}</div>
+                    <div>Against: {Number(proposal.args.votes[1])}</div>
+                    <div>Abstain: {Number(proposal.args.votes[2])}</div>
+                  </div>
+                </div>
+                <div className="content-end">
                   <Badge variant="secondary">{proposal.args.state}</Badge>
                 </div>
               </div>
