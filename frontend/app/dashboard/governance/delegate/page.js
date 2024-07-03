@@ -12,6 +12,9 @@ import { useAccount, useWriteContract } from "wagmi";
 // Constants
 import { contractAbi, contractAddress } from "@/constants/token";
 
+// Wagmi
+import { useWatchContractEvent } from "wagmi";
+
 const Delegate = () => {
 
   // State
@@ -20,6 +23,18 @@ const Delegate = () => {
 
   const { writeContractAsync } = useWriteContract();
   const { toast } = useToast();
+
+  // Watch
+
+  useWatchContractEvent({
+    address: contractAddress,
+    abi: contractAbi,
+    fromBlock: BigInt(0),
+    eventName: "DelegateChanged",
+    onLogs(logs) {
+      console.log(logs)
+    }
+  })
 
   // Handle
   const handleDelegate = async(address) => {

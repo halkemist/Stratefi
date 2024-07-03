@@ -1,7 +1,7 @@
 'use client';
 
 // Constants
-import { contractAbi, contractAddress } from "@/constants/governance";
+import { contractAbi as contractAbiGovernance, contractAddress as contractAddressGovernance } from "@/constants/governance";
 import { contractAbi as contractAbiToken, contractAddress as contractAddressToken } from "@/constants/token";
 import { config } from "@/app/config";
 
@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
+import { FaSpinner } from "react-icons/fa";
 
 const Governance = () => {
 
@@ -35,6 +36,7 @@ const Governance = () => {
   const [ proposalInput, setProposalInput ] = useState("");
   const [ votes, setVotes ] = useState({});
   const [ totalSupply, setTotalSupply ] = useState(0);
+
   // Watch //
 
   useWatchBlockNumber({
@@ -44,8 +46,8 @@ const Governance = () => {
   });
 
   useWatchContractEvent({
-    address: contractAddress,
-    abi: contractAbi,
+    address: contractAddressGovernance,
+    abi: contractAbiGovernance,
     fromBlock: BigInt(0),
     eventName: "",
     onLogs(logs) {
@@ -54,8 +56,8 @@ const Governance = () => {
   })
 
   useWatchContractEvent({
-    address: contractAddress,
-    abi: contractAbi,
+    address: contractAddressGovernance,
+    abi: contractAbiGovernance,
     fromBlock: BigInt(0),
     eventName: "ProposalCreated",
     onLogs(logs) {
@@ -90,8 +92,8 @@ const Governance = () => {
     const vote = votes[index];
     if (vote !== undefined && proposalId) {
       writeContract({
-        abi: contractAbi,
-        address: contractAddress,
+        abi: contractAbiGovernance,
+        address: contractAddressGovernance,
         functionName: "castVote",
         args: [
           [proposalId],
@@ -118,8 +120,8 @@ const Governance = () => {
   const handleAddProposal = async() => {
     try {
       await writeContractAsync({
-        abi: contractAbi,
-        address: contractAddress,
+        abi: contractAbiGovernance,
+        address: contractAddressGovernance,
         functionName: "propose",
         args: [
           ["0x0000000000000000000000000000000000000000"],
@@ -173,8 +175,8 @@ const Governance = () => {
   /// 6: Expired
   const getProposalState = (proposalId) => {
     const data = config.readContract({
-      abi: contractAbi,
-      address: contractAddress,
+      abi: contractAbiGovernance,
+      address: contractAddressGovernance,
       functionName: 'state',
       account: address,
       args: [
@@ -186,8 +188,8 @@ const Governance = () => {
 
   const getProposalVotes = (proposalId) => {
     const data = config.readContract({
-      abi: contractAbi,
-      address: contractAddress,
+      abi: contractAbiGovernance,
+      address: contractAddressGovernance,
       functionName: 'proposalVotes',
       args: [
         [proposalId],
@@ -244,10 +246,12 @@ const Governance = () => {
         </Button>
       </div>
       {!proposals ? (
-        <div>Loading...</div>
+        <div className="flex items-center gap-2">
+          <FaSpinner className="spinner"/> 
+          <span>Loading...</span>
+        </div>
       ) : (
         <>
-          <div className="mb-2">My voting power: </div>
           <div className="flex flex-col w-2/3 max-height-60 overflow-y-scroll">
             {proposals.map((proposal, index) => (
               <div key={index} className="border rounded-xl p-4 my-4">
