@@ -36,6 +36,11 @@ const Navigation = () => {
             <Link href="/dashboard/governance">Governance</Link>
           </Button>
         </li>
+        <li className="mb-4">
+          <Button className={`w-full hover:bg-black hover:text-white ${pathname === '/dashboard/project-details' ? 'bg-black text-white' : ''}`} variant="outline" asChild>
+            <Link href="/dashboard/project-details">Project Details</Link>
+          </Button>
+        </li>
       </ul>
     </nav>
   )
