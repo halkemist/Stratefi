@@ -2,11 +2,11 @@
 
 // Constants
 import { contractAbi, contractAddress } from "@/constants/governance";
+import { contractAbi as contractAbiToken, contractAddress as contractAddressToken } from "@/constants/token";
 import { config } from "@/app/config";
 
 // Wagmi
-import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount, useReadContract, getEnsAvatar } from "wagmi";
-import { normalize } from "viem/ens";
+import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount, useReadContract } from "wagmi";
 
 // React
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ const Governance = () => {
   const [ proposals, setProposals ] = useState();
   const [ proposalInput, setProposalInput ] = useState("");
   const [ votes, setVotes ] = useState({});
-
+  const [ totalSupply, setTotalSupply ] = useState(0);
   // Watch //
 
   useWatchBlockNumber({
@@ -59,7 +59,6 @@ const Governance = () => {
     fromBlock: BigInt(0),
     eventName: "ProposalCreated",
     onLogs(logs) {
-      //console.log(logs)
       if (logs.length > 0) {
         logs.forEach(element => {
           getProposalState(element.args.proposalId)
@@ -197,6 +196,15 @@ const Governance = () => {
     return data;
   }
 
+  const getTotalSupply = () => {
+    const data = config.readContract({
+      abi: contractAbiToken,
+      address: contractAddressToken,
+      functionName: 'totalSupply'
+    })
+    return data;
+  }
+
   const beautifulState = (state) => {
     const expr = state
     switch (expr) {
@@ -216,6 +224,12 @@ const Governance = () => {
         return "Expired";
     }
   }
+
+  useEffect(() => {
+    getTotalSupply().then((response) => {
+      setTotalSupply(Number(BigInt(response))) 
+    });
+  }, [])
 
   return (
     <div>
@@ -277,9 +291,9 @@ const Governance = () => {
                   <div>
                     <div className="mb-2 font-bold">Current results</div>
                     <div className="text-center">
-                      <div>For: {Number(proposal.args.votes[0])}</div>
-                      <div>Against: {Number(proposal.args.votes[1])}</div>
-                      <div>Abstain: {Number(proposal.args.votes[2])}</div>
+                      <div>For: {Number(proposal.args.votes[1]) / Number(totalSupply)} %</div>
+                      <div>Against: {Number(proposal.args.votes[0]) / Number(totalSupply)} %</div>
+                      <div>Abstain: {Number(proposal.args.votes[2]) / Number(totalSupply)} %</div>
                     </div>
                   </div>
                   <div className="content-end">
