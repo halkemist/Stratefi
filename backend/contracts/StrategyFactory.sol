@@ -8,8 +8,8 @@ contract StrategyFactory {
 
     event StrategyCreated(address strategyAddress);
 
-    function createStrategy(address _protocol, string memory _strategyType) public {
-        Strategy newStrategy = new Strategy(msg.sender, _protocol, _strategyType);
+    function createStrategy(address _protocol, string memory _strategyType, address _asset) public {
+        Strategy newStrategy = new Strategy(msg.sender, _protocol, _strategyType, _asset);
         strategies[msg.sender] = address(newStrategy);
         emit StrategyCreated(address(newStrategy));
     }
