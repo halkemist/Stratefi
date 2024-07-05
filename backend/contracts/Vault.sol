@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
 contract Vault {
 
-    address public protocol;
-    address public asset;
+    address public immutable protocol;
+    address public immutable asset;
 
     struct Account {
         uint256 balance;

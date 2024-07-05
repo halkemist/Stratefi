@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.24;
 
 import "./Vault.sol";
 
 contract Strategy {
-    address public creator;
-    address public protocol;
+    address public immutable creator;
+    address public immutable protocol;
     string public strategyType;
-    address public vault;
-    address public asset;
+    address public immutable vault;
+    address public immutable asset;
 
     event VaultCreated(address vaultAddress);
 

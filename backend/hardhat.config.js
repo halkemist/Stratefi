@@ -4,7 +4,7 @@ require("@nomicfoundation/hardhat-toolbox");
 module.exports = {
   defaultNetwork: "hardhat",
   solidity: {
-    version: "0.8.20",
+    version: "0.8.24",
     settings: {
       optimizer: {
         enabled: true,
