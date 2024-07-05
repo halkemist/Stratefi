@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity 0.8.20;
 
 contract Vault {
 
@@ -16,33 +16,36 @@ contract Vault {
     event VaultDeposited(address indexed account, uint256 amount, address protocol, address asset);
     event VaultWithdrawed(address indexed account, uint256 amount, address protocol, address asset);
 
-    constructor(address _protocol, address _asset) {
-        protocol = _protocol;
-        asset = _asset;
+    constructor(address newProtocol, address newAsset) {
+        require(newProtocol != address(0), "Protocol address cannot be zero");
+        require(newAsset != address(0), "Asset address cannot be zero");
+
+        protocol = newProtocol;
+        asset = newAsset;
     }
     
-    function deposit(address _address) external payable {
+    function deposit(address userAddress) external payable {
         require(msg.value > 0, "Need more funds to deposit");
-        balances[_address].balance += msg.value;
-        balances[_address].lastAction = block.timestamp;
-        emit VaultDeposited(_address, msg.value, protocol, asset);
+        balances[userAddress].balance += msg.value;
+        balances[userAddress].lastAction = block.timestamp;
+        emit VaultDeposited(userAddress, msg.value, protocol, asset);
     }
 
-    function withDraw(uint256 _amount) external {
+    function withDraw(uint256 amount) external {
         // Check: Check the funds
-        require(balances[msg.sender].balance >= _amount, "Need more funds to withdraw");
+        require(balances[msg.sender].balance >= amount, "Need more funds to withdraw");
 
         // Effect: Update the balance before sending
-        balances[msg.sender].balance -= _amount;
+        balances[msg.sender].balance -= amount;
 
-        emit VaultWithdrawed(msg.sender, _amount, protocol, asset);
+        emit VaultWithdrawed(msg.sender, amount, protocol, asset);
 
         // Interaction: Send the amount to the caller
-        (bool received, ) = msg.sender.call{value: _amount}("");
+        (bool received, ) = msg.sender.call{value: amount}("");
         require(received, "Error");
     }
 
-    function getBalance(address _address) external view returns(uint256) {
-        return balances[_address].balance;
+    function getBalance(address userAddress) external view returns(uint256) {
+        return balances[userAddress].balance;
     }
 }

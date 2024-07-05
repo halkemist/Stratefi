@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.24;
+pragma solidity 0.8.20;
 
 import "./Vault.sol";
 
@@ -12,17 +12,21 @@ contract Strategy {
 
     event VaultCreated(address vaultAddress);
 
-    constructor(address _creator, address _protocol, string memory _strategyType, address _asset) {
-        creator = _creator;
-        protocol = _protocol;
-        strategyType = _strategyType;
-        asset = _asset;
-        Vault newVault = new Vault(_protocol, _asset);
+    constructor(address newCreator, address newProtocol, string memory newStrategyType, address newAsset) {
+        require(newCreator != address(0), "Creator address cannot be zero");
+        require(newProtocol != address(0), "Protocol address cannot be zero");
+        require(newAsset != address(0), "Asset address cannot be zero");
+
+        creator = newCreator;
+        protocol = newProtocol;
+        strategyType = newStrategyType;
+        asset = newAsset;
+        Vault newVault = new Vault(newProtocol, newAsset);
         vault = address(newVault);
         emit VaultCreated(address(newVault));
     }
 
-    function executeStrategy(address _address) payable external {
-        Vault(vault).deposit{value: msg.value}(_address);
+    function executeStrategy(address userAddress) payable external {
+        Vault(vault).deposit{value: msg.value}(userAddress);
     }
 }
