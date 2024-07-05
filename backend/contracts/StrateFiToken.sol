@@ -24,7 +24,7 @@ contract StrateFiToken is ERC20, ERC20Burnable, ERC20Pausable, Ownable, ERC20Per
         Ownable(initialOwner)
         ERC20Permit("StrateFiToken")
     {
-        uint256 initialSupply = 1000000000 * (10 ** decimals());
+        uint256 initialSupply = 1e9 * (10 ** decimals());
         _mint(msg.sender, initialSupply);
     }
 
