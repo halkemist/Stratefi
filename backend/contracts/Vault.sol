@@ -29,11 +29,17 @@ contract Vault {
     }
 
     function withDraw(uint256 _amount) external {
+        // Check: Check the funds
         require(balances[msg.sender].balance >= _amount, "Need more funds to withdraw");
+
+        // Effect: Update the balance before sending
         balances[msg.sender].balance -= _amount;
+
+        emit VaultWithdrawed(msg.sender, _amount, protocol, asset);
+
+        // Interaction: Send the amount to the caller
         (bool received, ) = msg.sender.call{value: _amount}("");
         require(received, "Error");
-        emit VaultWithdrawed(msg.sender, _amount, protocol, asset);
     }
 
     function getBalance(address _address) external view returns(uint256) {
