@@ -16,11 +16,13 @@ contract Strategy {
         creator = _creator;
         protocol = _protocol;
         strategyType = _strategyType;
+        asset = _asset;
         Vault newVault = new Vault(_protocol, _asset);
+        vault = address(newVault);
         emit VaultCreated(address(newVault));
     }
 
-    function executeStrategy(address _address) external {
-        Vault(vault).deposit(_address);
+    function executeStrategy(address _address) payable external {
+        Vault(vault).deposit{value: msg.value}(_address);
     }
 }

@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import "./Strategy.sol";
 
 contract StrategyFactory {
-    mapping (address => address) strategies;
+    mapping (address => address) public strategies;
 
     event StrategyCreated(address strategyAddress);
 
