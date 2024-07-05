@@ -3,8 +3,8 @@ pragma solidity 0.8.24;
 
 contract Vault {
 
-    address public immutable protocol;
-    address public immutable asset;
+    address public immutable PROTOCOL;
+    address public immutable ASSET;
 
     struct Account {
         uint256 balance;
@@ -20,15 +20,15 @@ contract Vault {
         require(newProtocol != address(0), "Protocol address cannot be zero");
         require(newAsset != address(0), "Asset address cannot be zero");
 
-        protocol = newProtocol;
-        asset = newAsset;
+        PROTOCOL = newProtocol;
+        ASSET = newAsset;
     }
     
     function deposit(address userAddress) external payable {
         require(msg.value > 0, "Need more funds to deposit");
         balances[userAddress].balance += msg.value;
         balances[userAddress].lastAction = block.timestamp;
-        emit VaultDeposited(userAddress, msg.value, protocol, asset);
+        emit VaultDeposited(userAddress, msg.value, PROTOCOL, ASSET);
     }
 
     function withDraw(uint256 amount) external {
@@ -38,7 +38,7 @@ contract Vault {
         // Effect: Update the balance before sending
         balances[msg.sender].balance -= amount;
 
-        emit VaultWithdrawed(msg.sender, amount, protocol, asset);
+        emit VaultWithdrawed(msg.sender, amount, PROTOCOL, ASSET);
 
         // Interaction: Send the amount to the caller
         (bool received, ) = msg.sender.call{value: amount}("");
