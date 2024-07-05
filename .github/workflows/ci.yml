@@ -59,5 +59,5 @@ jobs:
 
       - name: Slither Analyse
         run: |
-          slither . --filter-paths "openzeppelin"
+          slither . --filter-paths "openzeppelin" --solc-disable-warnings
         working-directory: ./backend
