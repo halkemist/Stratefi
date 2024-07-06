@@ -41,8 +41,8 @@ contract Vault {
         emit VaultWithdrawed(msg.sender, amount, protocol, asset);
 
         // Interaction: Send the amount to the caller
-        (bool received, ) = msg.sender.call{value: amount}("");
-        require(received, "Error");
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Withdraw failed");
     }
 
     function getBalance(address userAddress) external view returns(uint256) {
