@@ -4,11 +4,11 @@ pragma solidity 0.8.24;
 import "./Vault.sol";
 
 contract Strategy {
-    address public immutable CREATOR;
-    address public immutable PROTOCOL;
+    address public immutable creator;
+    address public immutable protocol;
     string public strategyType;
-    address public immutable VAULT;
-    address public immutable ASSET;
+    address public immutable vault;
+    address public immutable asset;
 
     event VaultCreated(address vaultAddress);
 
@@ -17,16 +17,16 @@ contract Strategy {
         require(newProtocol != address(0), "Protocol address cannot be zero");
         require(newAsset != address(0), "Asset address cannot be zero");
 
-        CREATOR = newCreator;
-        PROTOCOL = newProtocol;
+        creator = newCreator;
+        protocol = newProtocol;
         strategyType = newStrategyType;
-        ASSET = newAsset;
+        asset = newAsset;
         Vault newVault = new Vault(newProtocol, newAsset);
-        VAULT = address(newVault);
+        vault = address(newVault);
         emit VaultCreated(address(newVault));
     }
 
     function executeStrategy(address userAddress) payable external {
-        Vault(VAULT).deposit{value: msg.value}(userAddress);
+        Vault(vault).deposit{value: msg.value}(userAddress);
     }
 }
