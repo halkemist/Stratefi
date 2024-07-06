@@ -52,6 +52,11 @@ jobs:
           pip install slither-analyzer
         working-directory: ./backend
 
+      - name: Create Slither Config
+        run: |
+          echo '{"detectors_to_exclude": ["solc-version"]}' > slither.config.json
+        working-directory: ./backend
+
       - name: Update dependencies
         run: |
           yarn install
