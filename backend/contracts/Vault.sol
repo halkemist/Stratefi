@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-contract Vault {
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+contract Vault is ReentrancyGuard {
 
     address public immutable protocol;
     address public immutable asset;
@@ -31,7 +33,7 @@ contract Vault {
         emit VaultDeposited(userAddress, msg.value, protocol, asset);
     }
 
-    function withDraw(uint256 amount) external {
+    function withDraw(uint256 amount) external nonReentrant {
         // Check: Check the funds
         require(balances[msg.sender].balance >= amount, "Need more funds to withdraw");
 
@@ -42,7 +44,7 @@ contract Vault {
 
         // Interaction: Send the amount to the caller
         (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Withdraw failed");
+        require(success, "Withdraw error");
     }
 
     function getBalance(address userAddress) external view returns(uint256) {
