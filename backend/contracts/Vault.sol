@@ -2,46 +2,46 @@
 pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-
-interface IPool {
-    function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external;
-    function withdraw(address asset, uint256 amount, address to) external returns (uint256);
-}
 
 contract Vault is ReentrancyGuard {
 
-    IPool public lendingPool;
+    address public immutable protocol;
 
     struct Account {
         uint256 balance;
         uint256 lastAction;
     }
 
-    mapping(address => Account) public balances;
+    mapping(address => Account) balances;
 
-    event VaultDeposited(address indexed account, uint256 amount);
-    event VaultWithdrawed(address indexed account, uint256 amount);
-    event ProtocolDeposited(address indexed account, uint256 amount);
-    event ProtocolWithdrawed(address indexed account, uint256 amount);
+    event VaultDeposited(address indexed account, uint256 amount, address protocol);
+    event VaultWithdrawed(address indexed account, uint256 amount, address protocol);
 
-    constructor(address protocolPoolAddress) {
-        lendingPool = IPool(protocolPoolAddress);
+    constructor(address newProtocol) {
+        require(newProtocol != address(0), "Protocol address cannot be zero");
+
+        protocol = newProtocol;
     }
     
-    function deposit() external payable nonReentrant {
-        require(msg.value > 0, "Not enough funds deposited");
-        balances[msg.sender].balance += msg.value;
-        balances[msg.sender].lastAction = block.timestamp;
-        emit VaultDeposited(msg.sender, msg.value);
+    function deposit(address userAddress) external payable {
+        require(msg.value > 0, "Need more funds to deposit");
+        balances[userAddress].balance += msg.value;
+        balances[userAddress].lastAction = block.timestamp;
+        emit VaultDeposited(userAddress, msg.value, protocol);
     }
 
     function withDraw(uint256 amount) external nonReentrant {
-        require(balances[msg.sender].balance >= amount, "Need more funds");
+        // Check: Check the funds
+        require(balances[msg.sender].balance >= amount, "Need more funds to withdraw");
+
+        // Effect: Update the balance before sending
         balances[msg.sender].balance -= amount;
-        (bool received, ) = msg.sender.call{value: amount}("");
-        require(received, "An error occured");
-        emit VaultWithdrawed(msg.sender, amount);
+
+        emit VaultWithdrawed(msg.sender, amount, protocol);
+
+        // Interaction: Send the amount to the caller
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Withdraw error");
     }
 
     function getBalance(address userAddress) external view returns(uint256) {

@@ -2,7 +2,6 @@
 pragma solidity 0.8.24;
 
 import "./Strategy.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract StrategyFactory {
     mapping (address => address) public strategies;

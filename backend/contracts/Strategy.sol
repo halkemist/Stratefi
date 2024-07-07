@@ -5,31 +5,25 @@ import "./Vault.sol";
 
 contract Strategy {
     address public immutable creator;
-    address public immutable protocolPoolAddress;
+    address public immutable protocol;
     string public strategyType;
     address public immutable vault;
 
-    event VaultCreated(address vaultAddress, address protocolPoolAddress, string strategyType);
-    event StrategyExecuted(address userAddress, address vaultAddress, address protocolPoolAddress, string strategyType, uint256 amount);
-    event ApprovalUpdated(address userAddress, address vaultAddress, uint256 amount);
+    event VaultCreated(address vaultAddress);
 
     constructor(address newCreator, address newProtocol, string memory newStrategyType) {
         require(newCreator != address(0), "Creator address cannot be zero");
         require(newProtocol != address(0), "Protocol address cannot be zero");
 
         creator = newCreator;
-        protocolPoolAddress = newProtocol;
+        protocol = newProtocol;
         strategyType = newStrategyType;
-        Vault newVault = new Vault(protocolPoolAddress);
-        vault = address(newVault); 
-        emit VaultCreated(address(newVault), protocolPoolAddress, strategyType);
+        Vault newVault = new Vault(newProtocol);
+        vault = address(newVault);
+        emit VaultCreated(address(newVault));
     }
 
-    function executeStrategy() payable external {
-        // Deposit tokens into Vault
-        Vault(vault).deposit{value: msg.value}();
-
-        // Emit event
-        emit StrategyExecuted(msg.sender, vault, protocolPoolAddress, strategyType, msg.value);
+    function executeStrategy(address userAddress) payable external {
+        Vault(vault).deposit{value: msg.value}(userAddress);
     }
 }
