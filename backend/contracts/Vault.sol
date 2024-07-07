@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 interface IWETH {
     function deposit() external payable;
     function withdraw(uint256 amount) external;
+    function approve(address guy, uint wad) external returns (bool);
 }
 
 contract Vault is ReentrancyGuard {
@@ -69,18 +70,16 @@ contract Vault is ReentrancyGuard {
         emit ProtocolDeposited(msg.sender, amount, protocol);
     }
 
-    function withwrawFromProtocol(uint256 amount) payable external nonReentrant {
+    function withwrawFromProtocol(uint256 amount) payable external {
         require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
         balances[msg.sender].wethBalance -= amount;
-
-        // Convert WETH to ETH
-        weth.withdraw(amount);
-
-        // Update the balance
+        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("withdraw(uint256)", amount));
         balances[msg.sender].balance += amount;
-
-        // Emit an event
         emit ProtocolWithdrawed(msg.sender, amount, protocol);
+    }
+
+    function approveVaultToWithdraw(address vaultAddress, uint256 amount) external {
+        weth.approve(vaultAddress, amount);
     }
 
     function getBalance(address userAddress) external view returns(uint256) {
