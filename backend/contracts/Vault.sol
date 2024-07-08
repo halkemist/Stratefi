@@ -10,11 +10,28 @@ interface IWETH {
     function approve(address guy, uint wad) external returns (bool);
 }
 
+interface IPool {
+    function supply(
+        address asset,
+        address userAddress,
+        address onBehalfOf,
+        uint256 amount,
+        uint16 referralCode
+    ) external;
+
+    function withdraw(
+        address asset,
+        address to,
+        address onBehalfOf,
+        uint256 amount
+    ) external;
+}
+
 contract Vault is ReentrancyGuard {
 
-    address public immutable protocol;
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
     IWETH public weth;
+    address public protocol;
 
     struct Account {
         uint256 balance;
@@ -56,7 +73,7 @@ contract Vault is ReentrancyGuard {
         require(success, "Withdraw error");
     }
 
-    function depositInProtocol(uint256 amount) external {
+    function convertToWeth(uint256 amount) external {
         require(balances[msg.sender].balance >= amount, "Insufficient funds in the Vault");
         
         // Update the balance
@@ -65,21 +82,47 @@ contract Vault is ReentrancyGuard {
 
         // Convert ETH to WETH
         weth.deposit{value: amount}();
+    }
+
+    function convertToEth(uint256 amount) external {
+        require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
+
+        // Update balance
+        balances[msg.sender].wethBalance -= amount;
+
+        // Convert WETH to ETH
+        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("withdraw(uint256)", amount));
+
+        // Update balance
+        balances[msg.sender].balance += amount;
+    }
+
+    function approveProtocol(uint256 amount) external {
+        // Approve WETH to interact with AAVE
+        //weth.approve(address(protocol), amount);
+        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("approve(address, uint)", protocol, amount));
+    }
+
+    function depositInProtocol(uint256 amount) external {
+        // Deposit in AAVE
+        protocol.call(abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0));
+ 
+        // Update balance
+        balances[msg.sender].wethBalance -= amount;
         
         // Emit an event
         emit ProtocolDeposited(msg.sender, amount, protocol);
     }
 
     function withwrawFromProtocol(uint256 amount) payable external {
-        require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
-        balances[msg.sender].wethBalance -= amount;
-        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("withdraw(uint256)", amount));
-        balances[msg.sender].balance += amount;
-        emit ProtocolWithdrawed(msg.sender, amount, protocol);
-    }
+        // Withdraw from AAVE
+        protocol.call(abi.encodeWithSignature("withdraw(address, address, address, uint256)", address(weth), address(this), msg.sender, amount));
 
-    function approveVaultToWithdraw(address vaultAddress, uint256 amount) external {
-        weth.approve(vaultAddress, amount);
+        // Update balance
+        balances[msg.sender].wethBalance += amount;
+
+        // Emit an event
+        emit ProtocolWithdrawed(msg.sender, amount, protocol);
     }
 
     function getBalance(address userAddress) external view returns(uint256) {
