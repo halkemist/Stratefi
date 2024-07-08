@@ -71,12 +71,10 @@ contract Vault is ReentrancyGuard {
 
         // Update balance
         balances[msg.sender].wethBalance -= amount;
+        balances[msg.sender].balance += amount;
 
         // Convert WETH to ETH
-        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("withdraw(uint256)", amount));
-
-        // Update balance
-        balances[msg.sender].balance += amount;
+        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("withdraw(uint256)", amount));        
     }
 
     function approveProtocol(uint256 amount) external {
@@ -85,25 +83,25 @@ contract Vault is ReentrancyGuard {
     }
 
     function depositInProtocol(uint256 amount) external {
-        // Deposit in AAVE
-        protocol.call(abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0));
- 
         // Update balance
         balances[msg.sender].wethBalance -= amount;
+
+        // Deposit in AAVE
+        protocol.call(abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0));
         
         // Emit an event
         emit ProtocolDeposited(msg.sender, amount, protocol);
     }
 
     function withwrawFromProtocol(uint256 amount) payable external {
-        // Withdraw from AAVE
-        protocol.call(abi.encodeWithSignature("withdraw(address, address, address, uint256)", address(weth), address(this), msg.sender, amount));
-
         // Update balance
         balances[msg.sender].wethBalance += amount;
 
         // Emit an event
         emit ProtocolWithdrawed(msg.sender, amount, protocol);
+
+        // Withdraw from AAVE
+        protocol.call(abi.encodeWithSignature("withdraw(address, address, address, uint256)", address(weth), address(this), msg.sender, amount));
     }
 
     function getBalance(address userAddress) external view returns(uint256) {
