@@ -54,8 +54,7 @@ jobs:
 
       - name: Create Slither Config
         run: |
-          echo '{"detectors_to_exclude": ["solc-version"]}' > slither.config.json
-          echo '{"detectors_to_exclude": ["low-level-calls"]}' > slither.config.json
+          echo '{"detectors_to_exclude": ["solc-version", "low-level-calls"]}' > slither.config.json
         working-directory: ./backend
 
       - name: Update dependencies
