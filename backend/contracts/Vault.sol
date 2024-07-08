@@ -12,8 +12,8 @@ interface IWETH {
 contract Vault is ReentrancyGuard {
 
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
-    IWETH public weth;
-    address public protocol;
+    IWETH public immutable weth;
+    address public immutable protocol;
 
     struct Account {
         uint256 balance;
@@ -86,11 +86,11 @@ contract Vault is ReentrancyGuard {
         // Update balance
         balances[msg.sender].wethBalance -= amount;
 
-        // Deposit in AAVE
-        protocol.call(abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0));
-        
         // Emit an event
         emit ProtocolDeposited(msg.sender, amount, protocol);
+
+        // Deposit in AAVE
+        protocol.call(abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0));
     }
 
     function withwrawFromProtocol(uint256 amount) payable external {
