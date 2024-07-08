@@ -10,23 +10,6 @@ interface IWETH {
     function approve(address guy, uint wad) external returns (bool);
 }
 
-interface IPool {
-    function supply(
-        address asset,
-        address userAddress,
-        address onBehalfOf,
-        uint256 amount,
-        uint16 referralCode
-    ) external;
-
-    function withdraw(
-        address asset,
-        address to,
-        address onBehalfOf,
-        uint256 amount
-    ) external;
-}
-
 contract Vault is ReentrancyGuard {
 
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
@@ -59,18 +42,18 @@ contract Vault is ReentrancyGuard {
         emit VaultDeposited(userAddress, msg.value, protocol);
     }
 
-    function withDraw(uint256 amount) external nonReentrant {
-        // Check: Check the funds
+    function withdraw(uint256 amount) external nonReentrant {
+        // Check the funds
         require(balances[msg.sender].balance >= amount, "Need more funds to withdraw");
 
-        // Effect: Update the balance before sending
+        // Update the balance
         balances[msg.sender].balance -= amount;
 
-        emit VaultWithdrawed(msg.sender, amount, protocol);
-
-        // Interaction: Send the amount to the caller
+        // Send the amount to the caller
         (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Withdraw error");
+        require(success, "Withdraw failed");
+
+        emit VaultWithdrawed(msg.sender, amount, protocol);
     }
 
     function convertToWeth(uint256 amount) external {
@@ -99,7 +82,6 @@ contract Vault is ReentrancyGuard {
 
     function approveProtocol(uint256 amount) external {
         // Approve WETH to interact with AAVE
-        //weth.approve(address(protocol), amount);
         WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("approve(address, uint)", protocol, amount));
     }
 
