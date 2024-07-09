@@ -20,7 +20,7 @@ contract StrateFiToken is ERC20, ERC20Burnable, ERC20Pausable, Ownable, ERC20Per
      * @param initialOwner The address of the owner of the contract.
      */
     constructor(address initialOwner)
-        ERC20("StrateFiToken", "SFT")
+        ERC20("StrateFiToken", "STF")
         Ownable(initialOwner)
         ERC20Permit("StrateFiToken")
     {

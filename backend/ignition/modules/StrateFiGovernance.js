@@ -5,5 +5,6 @@ module.exports = buildModule("StrateFiGovernance", (m) => {
 
     console.log(stratefitoken.address)
     const stratefigovernance = m.contract("StrateFiGovernance", [stratefitoken.address]);
+
     return { stratefigovernance };
 });
