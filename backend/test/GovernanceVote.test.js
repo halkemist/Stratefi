@@ -1,5 +1,5 @@
 const { loadFixture, mine } = require("@nomicfoundation/hardhat-network-helpers");
-const { expect, assert } = require("chai");
+const { expect } = require("chai");
 const hre = require("hardhat");
 
 describe("StratefiGovernance Tests", function () {
