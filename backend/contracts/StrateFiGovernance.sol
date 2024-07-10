@@ -46,7 +46,7 @@ contract StrateFiGovernance is Governor, GovernorCountingSimple, GovernorVotes, 
      * @return The min of votes required to create a proposal.
      */
     function proposalThreshold() public pure virtual override returns (uint256) {
-        return 0;
+        return 1;
     }
 
     /**

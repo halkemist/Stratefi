@@ -57,7 +57,7 @@ describe("StratefiToken Tests", function () {
         it("Should return the nonces of a user", async function() {
             const { token, owner } = await loadFixture(deployTokenFixture);
             const nonces = await token.connect(owner).nonces(owner.address);
-            console.log(Number(BigInt(nonces)));
+            expect(Number(BigInt(nonces))).to.be.equal(0);
         })
     })
 })
