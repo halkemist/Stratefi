@@ -1,4 +1,4 @@
-const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
+const { loadFixture, mine } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect, assert } = require("chai");
 const hre = require("hardhat");
 
@@ -74,22 +74,30 @@ describe("StratefiGovernance Tests", function () {
     describe("Voting", function() {
         it("Should allow users to vote on a proposal", async function() {
             const { governance, token, owner, addr1 } = await loadFixture(deployGovernanceFixture);
+
             // Create proposal.
             const proposal = await governance.connect(owner).propose(["0x0000000000000000000000000000000000000000"], [0], ["0x"], "Test Proposal");
+
             // Wait for event to get the proposal ID.
             const proposalReceipt = await proposal.wait();
             const proposalId = proposalReceipt.logs[0].args.proposalId;
+
             // Get proposal state.
             const stateBefore = await governance.state(proposalId);
+
             // Check that proposal not active.
             expect(Number(stateBefore)).to.be.equal(0);
+
             // Mint tokens for the voter
             await token.connect(owner).mint(addr1.address, 1000);
             const stateAfter = await governance.state(proposalId);
+
             // Check that proposal is active.
             expect(Number(stateAfter)).to.be.equal(1);
+
             // Try to vote
             await governance.connect(addr1).castVote(proposalId, 2);
+
             // Get the hasVoted status.
             const hasVoted = await governance.hasVoted(proposalId, addr1.address);
             expect(hasVoted).to.be.equal(true);
@@ -99,27 +107,78 @@ describe("StratefiGovernance Tests", function () {
     describe("Quorum", function() {
         it("Should require quorum to pass proposal", async function() {
             const { governance, token, owner, addr1, addr2 } = await loadFixture(deployGovernanceFixture);
+
+            // Initial distribution of tokens
+            const totalSupply = await token.totalSupply();
+            const decimals = await token.decimals();
+            const amount = hre.ethers.parseUnits("400000000", decimals);
+
+            // Transfer tokens to addr1 and addr2
+            await token.connect(owner).transfer(addr1.address, amount); // 40% of the supply to addr1
+            await token.connect(owner).transfer(addr2.address, amount); // 40% of the supply to addr2
+
+            // Self delegate voters
+            await token.connect(addr1).delegate(addr1.address);
+            await token.connect(addr2).delegate(addr2.address);
+
             // Create proposal
             const proposal = await governance.connect(owner).propose(["0x0000000000000000000000000000000000000000"], [0], ["0x"], "Test Proposal");
+
             // Wait for event to get the proposal ID.
             const proposalReceipt = await proposal.wait();
             const proposalId = proposalReceipt.logs[0].args.proposalId;
-            // Mint token for the voter
-            await token.connect(owner).mint(addr1.address, 1000000000);
-            await token.connect(owner).mint(addr2.address, 1000000000);
+
+            // Mine to next block
+            await mine(1);
+
             // Vote
             await governance.connect(addr1).castVote(proposalId, 1);
-            await governance.connect(owner).castVote(proposalId, 1);
             await governance.connect(addr2).castVote(proposalId, 1);
-            // Advance time by 2 weeks (in seconds)
-            const votingPeriodInSeconds = 2 * 7 * 24 * 60 * 60; // 2 weeks
-            await hre.network.provider.send("evm_increaseTime", [votingPeriodInSeconds]);
-            await hre.network.provider.send("evm_mine");
+
+            // Advance blocks by 2 weeks (in seconds)
+            await mine(100800);
 
             // Check proposal state, it should be Succeeded (state 4) if quorum is met
             let proposalState = await governance.state(proposalId);
-            console.log("Proposal state after voting period:", proposalState); // Expected to be 4 (Succeeded)
             expect(Number(proposalState)).to.be.equal(4);
+        })
+
+        it("Should proposal be defeated if quorum is not enough", async function() {
+            const { governance, token, owner, addr1, addr2 } = await loadFixture(deployGovernanceFixture);
+
+            // Initial distribution of tokens
+            const totalSupply = await token.totalSupply();
+            const decimals = await token.decimals();
+            const amount = hre.ethers.parseUnits("100000000", decimals);
+
+            // Transfer tokens to addr1 and addr2
+            await token.connect(owner).transfer(addr1.address, amount); // 10% of the supply to addr1
+            await token.connect(owner).transfer(addr2.address, amount); // 10% of the supply to addr2
+
+            // Self delegate voters
+            await token.connect(addr1).delegate(addr1.address);
+            await token.connect(addr2).delegate(addr2.address);
+
+            // Create proposal
+            const proposal = await governance.connect(owner).propose(["0x0000000000000000000000000000000000000000"], [0], ["0x"], "Test Proposal");
+
+            // Wait for event to get the proposal ID.
+            const proposalReceipt = await proposal.wait();
+            const proposalId = proposalReceipt.logs[0].args.proposalId;
+
+            // Mine to next block
+            await mine(1);
+
+            // Vote
+            await governance.connect(addr1).castVote(proposalId, 1);
+            await governance.connect(addr2).castVote(proposalId, 1);
+
+            // Advance blocks by 2 weeks (in seconds)
+            await mine(100800);
+
+            // Check proposal state, it should be Succeeded (state 4) if quorum is met
+            let proposalState = await governance.state(proposalId);
+            expect(Number(proposalState)).to.be.equal(3);
         })
     })
 })
