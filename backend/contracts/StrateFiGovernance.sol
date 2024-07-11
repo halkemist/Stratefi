@@ -8,11 +8,18 @@ import {GovernorVotes} from "@openzeppelin/contracts/governance/extensions/Gover
 import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import {IVotes} from "@openzeppelin/contracts/governance/utils/IVotes.sol";
 
+interface IERC20 {
+    function balanceOf(address account) external returns(uint256);
+}
+
 /**
  * @title Governance contract for StrateFi DAO.
  * @dev Extends various OpenZeppelin governance modules.
  */
 contract StrateFiGovernance is Governor, GovernorCountingSimple, GovernorVotes, GovernorVotesQuorumFraction {
+
+    IERC20 public immutable governanceToken;
+
     /**
      * @dev Initialize the contract.
      * @param _token The address of the governance token used for voting.
@@ -21,7 +28,9 @@ contract StrateFiGovernance is Governor, GovernorCountingSimple, GovernorVotes, 
         Governor("StrateFiGovernance")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(66)
-    {}
+    {
+        governanceToken = IERC20(address(_token));
+    }
 
     // The following functions are overrides required by Solidity.
 
@@ -78,7 +87,7 @@ contract StrateFiGovernance is Governor, GovernorCountingSimple, GovernorVotes, 
         }
 
         // check proposal threshold
-        uint256 proposerVotes = getVotes(proposer, clock() - 1);
+        uint256 proposerVotes = governanceToken.balanceOf(proposer);
         uint256 votesThreshold = proposalThreshold();
         if (proposerVotes < votesThreshold) {
             revert GovernorInsufficientProposerVotes(proposer, proposerVotes, votesThreshold);

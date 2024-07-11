@@ -24,7 +24,7 @@ describe("Strategy Tests", function () {
     const Vault = await hre.ethers.getContractFactory("Vault");
     const vault = Vault.attach(vaultAddress);
 
-    return { strategy, vault, owner, addr1, protocolAddress, strategyType };
+    return { strategy, vault, owner, addr1 };
   }
 
   describe("Strategy constructor", function() {
@@ -50,7 +50,7 @@ describe("Strategy Tests", function () {
 
   describe("Initialize Strategy", function() {
     it("Should have variables", async function() {
-      const { strategy, vault, owner, protocolAddress, strategyType } = await loadFixture(deployStrategyFixture);
+      const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
 
       // Check creator
       expect(await strategy.creator())
