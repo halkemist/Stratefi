@@ -9,15 +9,21 @@ interface IWETH {
     function approve(address guy, uint wad) external returns (bool);
 }
 
+interface IATOKEN {
+    function scaledBalanceOf(address user) external view returns (uint256);
+}
+
 contract Vault is ReentrancyGuard {
 
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
+    address public constant A_TOKEN_WETH_BASE_SEPOLIA = 0x96e32dE4B1d1617B8c2AE13a88B9cC287239b13f;
     IWETH public immutable weth;
+    IATOKEN public immutable atoken;
     address public immutable protocol;
 
     struct Account {
         uint256 balance;
-        uint256 wethBalance; // WETH balance in protocol
+        uint256 wethBalance;
         uint256 lastAction;
     }
 
@@ -31,17 +37,20 @@ contract Vault is ReentrancyGuard {
     constructor(address newProtocol) {
         require(newProtocol != address(0), "Protocol address cannot be zero");
         weth = IWETH(WETH_ADDRESS_BASE_SEPOLIA);
+        atoken = IATOKEN(A_TOKEN_WETH_BASE_SEPOLIA);
         protocol = newProtocol;
     }
+
+    receive() external payable {}
     
-    function deposit(address userAddress) external payable {
+    function depositInVault(address userAddress) external payable {
         require(msg.value > 0, "Need more funds to deposit");
         balances[userAddress].balance += msg.value;
         balances[userAddress].lastAction = block.timestamp;
         emit VaultDeposited(userAddress, msg.value, protocol);
     }
 
-    function withdraw(uint256 amount) external nonReentrant {
+    function withdrawFromVault(uint256 amount) external nonReentrant {
         // Check the funds
         require(balances[msg.sender].balance >= amount, "Need more funds to withdraw");
 
@@ -71,18 +80,30 @@ contract Vault is ReentrancyGuard {
 
         // Update balance
         balances[msg.sender].wethBalance -= amount;
-        balances[msg.sender].balance += amount;
+
+        weth.withdraw(amount);
 
         // Convert WETH to ETH
-        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("withdraw(uint256)", amount));        
+        //(bool success, bytes memory data) = WETH_ADDRESS_BASE_SEPOLIA.call(
+        //    abi.encodeWithSignature("withdraw(uint256)", amount)
+        //);
+
+        //require(success, "WETH to ETH conversion failed");
+        balances[msg.sender].balance += amount;
     }
 
     function approveProtocol(uint256 amount) external {
         // Approve WETH to interact with AAVE
-        WETH_ADDRESS_BASE_SEPOLIA.call(abi.encodeWithSignature("approve(address, uint)", protocol, amount));
+        (bool success, ) = WETH_ADDRESS_BASE_SEPOLIA.call(
+            abi.encodeWithSignature("approve(address, uint256)", protocol, amount)
+        );
+
+        require(success, "WETH approval for AAVE failed");
     }
 
     function depositInProtocol(uint256 amount) external {
+        require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
+
         // Update balance
         balances[msg.sender].wethBalance -= amount;
 
@@ -90,7 +111,11 @@ contract Vault is ReentrancyGuard {
         emit ProtocolDeposited(msg.sender, amount, protocol);
 
         // Deposit in AAVE
-        protocol.call(abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0));
+        (bool success, ) = protocol.call(
+            abi.encodeWithSignature("supply(address, address, address, uint256, uint16)", address(weth), msg.sender, address(0), amount, 0)
+        );
+
+        require(success, "AAVE deposit failed");
     }
 
     function withwrawFromProtocol(uint256 amount) payable external {
@@ -101,14 +126,22 @@ contract Vault is ReentrancyGuard {
         emit ProtocolWithdrawed(msg.sender, amount, protocol);
 
         // Withdraw from AAVE
-        protocol.call(abi.encodeWithSignature("withdraw(address, address, address, uint256)", address(weth), address(this), msg.sender, amount));
+        (bool success, ) = protocol.call(
+            abi.encodeWithSignature("withdraw(address, address, address, uint256)", address(weth), address(this), msg.sender, amount)
+        );
+
+        require(success, "AAVE withdrawal failed");
+    }
+
+    function getProtocolBalance(address userAddress) external view returns(uint256) {
+        return atoken.scaledBalanceOf(userAddress);
     }
 
     function getBalance(address userAddress) external view returns(uint256) {
         return balances[userAddress].balance;
     }
 
-    function getWETHBalance(address userAddress) external view returns (uint256) {
+    function getWETHBalance(address userAddress) external view returns(uint256) {
         return balances[userAddress].wethBalance;
     }
 }

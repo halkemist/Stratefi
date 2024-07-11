@@ -57,7 +57,7 @@ describe("Vault Tests", function () {
 
             // Withdraw from vault
             let vaultUserBalance = await vault.getBalance(addr1.address);
-            await vault.connect(addr1).withdraw(vaultUserBalance);
+            await vault.connect(addr1).withdrawFromVault(vaultUserBalance);
 
             // Check contract amount after withdraw
             let contractVaultBalance = await hre.ethers.provider.getBalance(vault.target);
@@ -71,8 +71,8 @@ describe("Vault Tests", function () {
             const { vault, addr1 } = await loadFixture(deployVaultFixture);
 
             // Try to withdraw
-            expect(
-                await vault.connect(addr1).withdraw(hre.ethers.parseEther("1"))
+            await expect(
+                vault.connect(addr1).withdrawFromVault(hre.ethers.parseEther("1"))
             ).to.be.revertedWith("Need more funds to withdraw");
         })
         it("Shouldn't withdraw more funds than your deposit amount", async function() {
@@ -82,13 +82,128 @@ describe("Vault Tests", function () {
             await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("1")});
 
             // Try to withdraw more funds
-            expect(
-                await vault.connect(addr1).withdraw(hre.ethers.parseEther("2"))
+            await expect(
+                vault.connect(addr1).withdrawFromVault(hre.ethers.parseEther("2"))
             ).to.be.revertedWith("Need more funds to withdraw");
         })
     })
 
-    //describe("ETH/WETH Conversion")
+    describe("ETH/WETH Conversion", function() {
+        it("Should convert ETH to WETH", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("2")});
+            
+            // Check balance before convert
+            const wethBalanceBefore = await vault.getWETHBalance(addr1.address);
+
+            const vaultEthBalance = await vault.getBalance(addr1.address);
+            
+            // Convert ETH to WETH
+            await vault.connect(addr1).convertToWeth(vaultEthBalance);
+
+            // Check balance after convert
+            const wethBalanceAfter = await vault.getWETHBalance(addr1.address);
+
+            expect(wethBalanceBefore).to.be.not.equal(wethBalanceAfter);
+        })
+
+        it("Shouldn't convert ETH to WETH if insufficient ETH balance", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("1")});
+                        
+            // Convert ETH to WETH
+            await expect(
+                vault.connect(addr1).convertToWeth(hre.ethers.parseEther("2"))
+            ).to.be.revertedWith("Insufficient funds in the Vault");
+        })
+
+        it("Should convert WETH to ETH", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("2")});
+            
+            // Check balance before convert
+            const wethBalanceBefore = await vault.getWETHBalance(addr1.address);
+
+            const vaultEthBalance = await vault.getBalance(addr1.address);
+            
+            // Convert ETH to WETH
+            await vault.connect(addr1).convertToWeth(vaultEthBalance);
+
+            // Check balance after convert
+            const wethBalanceAfter = await vault.getWETHBalance(addr1.address);
+
+            expect(wethBalanceBefore).to.be.not.equal(wethBalanceAfter);
+
+            // Convert WETH to ETH
+            await vault.connect(addr1).convertToEth(wethBalanceAfter);
+
+            // Check weth balance after convert
+            const wethBalanceAfterSecond = await vault.getWETHBalance(addr1.address);
+
+            expect(wethBalanceAfterSecond).to.be.equal(hre.ethers.parseEther("0"));
+        })
+
+        it("Shouldn't convert WETH to ETH is insufficient WETH balance", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("2")});
+            
+            // Check balance before convert
+            const wethBalanceBefore = await vault.getWETHBalance(addr1.address);
+
+            const vaultEthBalance = await vault.getBalance(addr1.address);
+            
+            // Convert ETH to WETH
+            await vault.connect(addr1).convertToWeth(vaultEthBalance);
+
+            // Check balance after convert
+            const wethBalanceAfter = await vault.getWETHBalance(addr1.address);
+
+            expect(wethBalanceBefore).to.be.not.equal(wethBalanceAfter);
+
+            // Convert WETH to ETH
+            await expect(
+                vault.connect(addr1).convertToEth(hre.ethers.parseEther("3"))
+            ).to.be.revertedWith("Insufficient WETH balance");
+        })
+    })
+
+    describe("Deposit/Withdraw from protocol", function() {
+        it("Should deposit WETH to protocol supply pool", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("2")});
+            
+            // Check balance before convert
+            const vaultEthUserBalance = await vault.getBalance(addr1.address);
+            
+            // Convert ETH to WETH
+            await vault.connect(addr1).convertToWeth(vaultEthUserBalance);
+
+            const vaultWethUserBalance = await vault.getWETHBalance(addr1.address);
+
+            // Approve protocol
+            await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
+
+            // Deposit in protocol
+            await vault.connect(addr1).depositInProtocol(vaultWethUserBalance);
+
+            // Get protocol aTOKEN balance
+            const aTOKENBalance = await vault.getProtocolBalance(addr1.address);
+            console.log(aTOKENBalance);
+        })
+        it("Shouldn't deposit WETH without funds", async function() {
+
+        })
+    })
   
 /*     describe("Initialize Strategy", function() {
       it("Should have variables", async function() {

@@ -7,7 +7,7 @@ contract Strategy {
     address public immutable creator;
     address public immutable protocol;
     string public strategyType;
-    address public immutable vault;
+    address payable public immutable vault;
 
     event VaultCreated(address vaultAddress);
 
@@ -15,15 +15,18 @@ contract Strategy {
         require(newCreator != address(0), "Creator address cannot be zero");
         require(newProtocol != address(0), "Protocol address cannot be zero");
 
+        // Assign values
         creator = newCreator;
         protocol = newProtocol;
         strategyType = newStrategyType;
+
+        // Deploy Vault contract
         Vault newVault = new Vault(newProtocol);
-        vault = address(newVault);
+        vault = payable(address(newVault));
         emit VaultCreated(address(newVault));
     }
 
     function executeStrategy(address userAddress) payable external {
-        Vault(vault).deposit{value: msg.value}(userAddress);
+        Vault(vault).depositInVault{value: msg.value}(userAddress);
     }
 }
