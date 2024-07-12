@@ -3,6 +3,7 @@ pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import { IPool } from "@aave/core-v3/contracts/interfaces/IPool.sol";
+import { IPoolAddressesProvider } from "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 
 interface IWETH {
     function deposit() external payable;
@@ -12,11 +13,17 @@ interface IWETH {
 }
 
 contract Vault is ReentrancyGuard {
+    // Constants
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
     address public constant A_TOKEN_WETH_BASE_SEPOLIA = 0x96e32dE4B1d1617B8c2AE13a88B9cC287239b13f;
+
+    // Token and pool and provider
     IWETH public immutable weth;
-    address public pool;
     IPool internal lendingPool;
+    IPoolAddressesProvider public provider;
+
+    // Pool address
+    address public poolAddress;
 
     struct Account {
         uint256 balance;
@@ -34,8 +41,9 @@ contract Vault is ReentrancyGuard {
     constructor(address newProtocol) {
         require(newProtocol != address(0), "Protocol address cannot be zero");
         weth = IWETH(WETH_ADDRESS_BASE_SEPOLIA);
-        pool = newProtocol;
-        lendingPool = IPool(newProtocol);
+        poolAddress = newProtocol;
+        provider = IPoolAddressesProvider(0xd449FeD49d9C443688d6816fE6872F21402e41de);
+        lendingPool = IPool(provider.getPool());
     }
 
     receive() external payable {}
@@ -87,11 +95,7 @@ contract Vault is ReentrancyGuard {
 
     function approveProtocol(uint256 amount) external {
         // Approve WETH to interact with AAVE
-        (bool success, ) = WETH_ADDRESS_BASE_SEPOLIA.call(
-            abi.encodeWithSignature("approve(address, uint256)", pool, amount)
-        );
-
-        require(success, "WETH approval for AAVE failed");
+        weth.approve(poolAddress, amount);
     }
 
     function depositInProtocol(uint256 amount) external {
@@ -110,7 +114,6 @@ contract Vault is ReentrancyGuard {
     function withdrawFromProtocol(uint256 amount) payable external {
         // Update balance
         balances[msg.sender].wethBalance += amount;
-
 
 
 
