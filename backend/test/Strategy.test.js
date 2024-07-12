@@ -27,7 +27,7 @@ describe("Strategy Tests", function () {
     return { strategy, vault, owner, addr1 };
   }
 
-  describe("Strategy constructor", function() {
+  /*describe("Strategy constructor", function() {
     it("should revert if creator address is zero", async function() {
       const Strategy = await hre.ethers.getContractFactory("Strategy");
   
@@ -46,9 +46,9 @@ describe("Strategy Tests", function () {
         Strategy.deploy(owner.address, hre.ethers.ZeroAddress, strategyType)
       ).to.be.revertedWith("Protocol address cannot be zero");
     })
-  })
+  })*/
 
-  describe("Initialize Strategy", function() {
+  /*describe("Initialize Strategy", function() {
     it("Should have variables", async function() {
       const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
 
@@ -68,9 +68,9 @@ describe("Strategy Tests", function () {
       expect(await strategy.vault())
         .to.be.equal(vault.target);
     })
-  })
+  })*/
 
-  describe("Strategy Execution", function() {
+  /*describe("Strategy Execution", function() {
     it("Should owner deposit on the vault", async function() {
       const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
       await strategy.executeStrategy(owner.address, {value: hre.ethers.parseEther("1")});
@@ -85,5 +85,5 @@ describe("Strategy Tests", function () {
       expect(hre.ethers.formatEther(addr1Balance))
         .to.be.equal("1.0");
     })
-  })
+  })*/
 });

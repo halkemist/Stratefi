@@ -28,7 +28,7 @@ contract Strategy {
      * @param newProtocol Address of the protocol to interact with
      * @param newStrategyType Type of the strategy.
      */
-    constructor(address newCreator, address newProtocol, string memory newStrategyType) {
+    constructor(address newCreator, address newProtocol, string memory newStrategyType, address provider) {
         require(newCreator != address(0), "Creator address cannot be zero");
         require(newProtocol != address(0), "Protocol address cannot be zero");
 
@@ -38,7 +38,7 @@ contract Strategy {
         strategyType = newStrategyType;
 
         // Deploy Vault contract
-        Vault newVault = new Vault(newProtocol);
+        Vault newVault = new Vault(protocol, provider);
         vault = payable(address(newVault));
         emit VaultCreated(address(newVault));
     }

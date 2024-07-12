@@ -16,6 +16,7 @@ contract Vault is ReentrancyGuard {
     // Constants
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
     address public constant A_TOKEN_WETH_BASE_SEPOLIA = 0x96e32dE4B1d1617B8c2AE13a88B9cC287239b13f;
+    address public constant I_POOL_ADDRESSES_PROVIDER_BASE_SEPOLIA = 0xd449FeD49d9C443688d6816fE6872F21402e41de;
 
     // Token and pool and provider
     IWETH public immutable weth;
@@ -41,9 +42,9 @@ contract Vault is ReentrancyGuard {
     constructor(address newProtocol) {
         require(newProtocol != address(0), "Protocol address cannot be zero");
         weth = IWETH(WETH_ADDRESS_BASE_SEPOLIA);
-        poolAddress = newProtocol;
-        provider = IPoolAddressesProvider(0xd449FeD49d9C443688d6816fE6872F21402e41de);
+        provider = IPoolAddressesProvider(I_POOL_ADDRESSES_PROVIDER_BASE_SEPOLIA);
         lendingPool = IPool(provider.getPool());
+        poolAddress = provider.getPool();
     }
 
     receive() external payable {}
@@ -115,7 +116,7 @@ contract Vault is ReentrancyGuard {
         // Update balance
         balances[msg.sender].wethBalance += amount;
 
-
+        //lendingPool.withdraw();
 
         // Emit an event
         emit ProtocolWithdrawed(msg.sender, amount);

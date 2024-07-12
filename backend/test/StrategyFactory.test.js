@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const hre = require("hardhat");
+import { AaveV3BaseSepolia } from "@bgd-labs/aave-address-book";
 
 describe("StrategyFactory Test", function() {
     it("Should create a strategy", async function() {

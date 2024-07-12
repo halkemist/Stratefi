@@ -12,6 +12,11 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.1.tgz#63430d04bd8c5e74f8d7d049338f1cd9d4f02069"
   integrity sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw==
 
+"@bgd-labs/aave-address-book@^2.30.0":
+  version "2.30.0"
+  resolved "https://registry.yarnpkg.com/@bgd-labs/aave-address-book/-/aave-address-book-2.30.0.tgz#8cad2cc68859039b5d77225073b5f9c20d153616"
+  integrity sha512-xQmGsE4FbkvCKNM6iUS0Nl28iFcdIEw6BmmTL9P7j6Hn6X9TsW4RY4AkyqlJrwIO8pLro8MDPS0D9WxIi0m8qg==
+
 "@ethereumjs/rlp@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@ethereumjs/rlp/-/rlp-4.0.1.tgz#626fabfd9081baab3d0a3074b0c7ecaf674aaa41"

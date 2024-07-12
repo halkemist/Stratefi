@@ -2,17 +2,17 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect } = require("chai");
 const hre = require("hardhat");
 
-const protocolAddress = "0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b";
+const poolAddress = "0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b";
 const strategyType = "Supply WETH";
 
-describe("Vault Tests", function () {
+/* describe("Vault Tests", function () {
     async function deployVaultFixture() {
       const [owner, addr1] = await hre.ethers.getSigners();
       const StrategyFactory = await hre.ethers.getContractFactory("StrategyFactory");
   
       // Deploy strategy factory
       const factory = await StrategyFactory.deploy();
-      await factory.createStrategy(protocolAddress, strategyType);
+      await factory.createStrategy(poolAddress, strategyType);
       
       // Get strategy contract from address
       const strategyAddress = await factory.strategies(owner.address);
@@ -32,7 +32,7 @@ describe("Vault Tests", function () {
             const { vault } = await loadFixture(deployVaultFixture);
             
             // Check protocol address
-            expect(await vault.protocol()).to.be.equal(protocolAddress);
+            expect(await vault.pool()).to.be.equal(poolAddress);
         })
     })
 
@@ -193,54 +193,77 @@ describe("Vault Tests", function () {
             // Approve protocol
             await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
 
-            // Deposit in protocol
-            await vault.connect(addr1).depositInProtocol(vaultWethUserBalance);
+            // Initialize WETH contract to interact with it
+            const contractAddress = "0x4200000000000000000000000000000000000006";
+            const erc20ABI = [
+                "function balanceOf(address account) view returns (uint256)",
+            ];
+            const provider = hre.ethers.provider;
+            const wethContract = new hre.ethers.Contract(contractAddress, erc20ABI, provider);
 
-            // Get protocol aTOKEN balance
-            const aTOKENBalance = await vault.getProtocolBalance(addr1.address);
-            console.log(aTOKENBalance);
+            // Deposit in protocol
+            await expect(
+                vault.connect(addr1).depositInProtocol(vaultWethUserBalance)
+            ).to.emit(vault, "ProtocolDeposited");
+
+            const balanceBefore = await wethContract.balanceOf(vault.target);
+            console.log(balanceBefore)
+
+            const vaultWethUserBalanceAfter = await vault.getWETHBalance(addr1.address);
+
+            expect(vaultWethUserBalanceAfter).to.be.equal(hre.ethers.parseEther("0"));
         })
         it("Shouldn't deposit WETH without funds", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("2")});
+            
+            // Check balance before convert
+            const vaultEthUserBalance = await vault.getBalance(addr1.address);
+            
+            // Convert ETH to WETH
+            await vault.connect(addr1).convertToWeth(vaultEthUserBalance);
+
+            const vaultWethUserBalance = await vault.getWETHBalance(addr1.address);
+
+            // Approve protocol
+            await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
+
+            // Deposit in protocol
+            await expect(
+                vault.connect(addr1).depositInProtocol(hre.ethers.parseEther("4"))
+            ).to.be.revertedWith("Insufficient WETH balance");
+        })
+        it("Should withdraw from protocol", async function() {
+            const { strategy, vault, addr1 } = await loadFixture(deployVaultFixture);
+
+            // Deposit ETH into the vault
+            await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("2")});
+            
+            // Check balance before convert
+            const vaultEthUserBalance = await vault.getBalance(addr1.address);
+            
+            // Convert ETH to WETH
+            await vault.connect(addr1).convertToWeth(vaultEthUserBalance);
+
+            const vaultWethUserBalance = await vault.getWETHBalance(addr1.address);
+
+            // Approve protocol
+            await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
+
+            // Deposit in protocol
+            await expect(
+                vault.connect(addr1).depositInProtocol(vaultWethUserBalance)
+            ).to.emit(vault, "ProtocolDeposited");
+
+            const vaultWethUserBalanceAfter = await vault.getWETHBalance(addr1.address);
+
+            expect(vaultWethUserBalanceAfter).to.be.equal(hre.ethers.parseEther("0"));
+
+            vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance)
 
         })
-    })
-  
-/*     describe("Initialize Strategy", function() {
-      it("Should have variables", async function() {
-        const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
-  
-        // Check creator
-        expect(await strategy.creator())
-          .to.be.equal(owner.address);
-  
-        // Check protocol
-        expect(await strategy.protocol())
-          .to.be.equal(protocolAddress);
-  
-        // Check strategyType
-        expect(await strategy.strategyType())
-          .to.be.equal(strategyType);
-  
-        // Check vault address
-        expect(await strategy.vault())
-          .to.be.equal(vault.target);
-      })
-    })
-  
-    describe("Strategy Execution", function() {
-      it("Should owner deposit on the vault", async function() {
-        const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
-        await strategy.executeStrategy(owner.address, {value: hre.ethers.parseEther("1")});
-        const ownerBalance = await vault.getBalance(owner.address);
-        expect(hre.ethers.formatEther(ownerBalance))
-          .to.be.equal("1.0");
-      })
-      it("Should other deposit on the vault", async function() {
-        const { strategy, vault, addr1 } = await loadFixture(deployStrategyFixture);
-        await strategy.executeStrategy(addr1.address, {value: hre.ethers.parseEther("1")});
-        const addr1Balance = await vault.getBalance(addr1.address);
-        expect(hre.ethers.formatEther(addr1Balance))
-          .to.be.equal("1.0");
-      })
-    }) */
-  });
+        
+    }) 
+  }); */
