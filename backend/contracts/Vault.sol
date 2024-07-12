@@ -11,6 +11,7 @@ interface IWETH {
     function withdraw(uint256 amount) external;
     function approve(address guy, uint wad) external returns (bool);
     function balanceOf(address account) external view returns (uint256);
+    function transferFrom(address account, address to, uint amount) external returns(bool);
 }
 
 contract Vault is ReentrancyGuard {
@@ -105,6 +106,9 @@ contract Vault is ReentrancyGuard {
         // Update balance
         balances[msg.sender].wethBalance -= amount;
 
+        // Approve lending pool to spend WETH
+        require(weth.approve(poolAddress, amount), "Approval failed");
+
         // Deposit in pool
         lendingPool.supply(address(weth), amount, msg.sender, 0);
 
@@ -112,21 +116,18 @@ contract Vault is ReentrancyGuard {
         emit ProtocolDeposited(msg.sender, amount);
     }
 
-    function withdrawFromProtocol(uint256 amount) payable external {
-
-        IERC20(A_TOKEN_WETH_BASE_SEPOLIA).transferFrom(msg.sender, address(this), amount);
-        IERC20(A_TOKEN_WETH_BASE_SEPOLIA).approve(address(lendingPool), amount);
+    function withdrawFromProtocol(uint256 amount, address aToken) payable external {
+        IWETH(aToken).transferFrom(msg.sender, address(this), amount);
+        IWETH(aToken).approve(poolAddress, amount);
 
         // Withdraw from pool
-        try lendingPool.withdraw(address(weth), amount, address(this)) {
-            // Update balance
-            balances[msg.sender].wethBalance += amount;
+        lendingPool.withdraw(address(weth), amount, address(this));
 
-            // Emit an event
-            emit ProtocolWithdrawed(msg.sender, amount);
-        } catch Error(string memory reason) {
-            emit LogError(reason);
-        }
+        // Update balance
+        balances[msg.sender].wethBalance += amount;
+
+        // Emit an event
+        emit ProtocolWithdrawed(msg.sender, amount);
     }
 
     function getContractBalance() external view returns(uint256) {

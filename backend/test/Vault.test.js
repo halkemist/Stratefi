@@ -249,8 +249,8 @@ const strategyType = "Supply WETH";
             const provider = hre.ethers.provider;
             const wethContract = new hre.ethers.Contract(contractAddress, erc20ABI, provider);
 
-            let balanceBefore = await wethContract.balanceOf(vault.target);
-            console.log(balanceBefore)
+            const balanceBefore = await wethContract.balanceOf(vault.target);
+
             // Approve protocol
             await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
 
@@ -259,21 +259,28 @@ const strategyType = "Supply WETH";
                 vault.connect(addr1).depositInProtocol(vaultWethUserBalance)
             ).to.emit(vault, "ProtocolDeposited");
 
-            balanceBefore = await wethContract.balanceOf(vault.target);
-            console.log(balanceBefore)
-
             const vaultWethUserBalanceAfter = await vault.getWETHBalance(addr1.address);
 
             expect(vaultWethUserBalanceAfter).to.be.equal(hre.ethers.parseEther("0"));
 
-            await expect(
-                vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance)
-            ).to.emit("ProtocolWithdrawed")
+            const atokenAddress = "0x96e32dE4B1d1617B8c2AE13a88B9cC287239b13f";
+            const atokenABI = [
+                "function approve(address guy, uint wad) external returns (bool)",
+            ]
+            const atokenContract = new hre.ethers.Contract(atokenAddress, atokenABI, provider);
 
-            balanceBefore = await wethContract.balanceOf(vault.target);
-            console.log(balanceBefore)
+            const balanceDuring = await wethContract.balanceOf(vault.target);
+            expect(balanceDuring).to.be.equal(hre.ethers.parseEther("0"));
+
+            // Approve A TOKEN to be USE from USER to VAULT contract
+            await atokenContract.connect(addr1).approve(vault.target, vaultWethUserBalance);
+
+            await expect(
+                vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance, "0x96e32dE4B1d1617B8c2AE13a88B9cC287239b13f")
+            ).to.emit(vault, "ProtocolWithdrawed");
 
             const balanceAfter = await wethContract.balanceOf(vault.target);
+            expect(balanceBefore).to.be.equal(balanceAfter);
         })
     })
   });
