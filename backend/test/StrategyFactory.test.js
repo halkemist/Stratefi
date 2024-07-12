@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const hre = require("hardhat");
-import { AaveV3BaseSepolia } from "@bgd-labs/aave-address-book";
+const { AaveV3BaseSepolia } = require("@bgd-labs/aave-address-book");
 
 describe("StrategyFactory Test", function() {
     it("Should create a strategy", async function() {
@@ -9,7 +9,7 @@ describe("StrategyFactory Test", function() {
         const factory = await StrategyFactory.deploy();
         
         // Create strategy and check event
-        expect(await factory.createStrategy(addr1.address, "Staking WETH"))
+        expect(await factory.createStrategy("Staking WETH", AaveV3BaseSepolia.POOL_ADDRESSES_PROVIDER))
             .to.emit(factory, 'StrategyCreated');
         
         // Check strategy exist

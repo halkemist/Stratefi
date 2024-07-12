@@ -1,18 +1,18 @@
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect } = require("chai");
 const hre = require("hardhat");
+const { AaveV3BaseSepolia } = require("@bgd-labs/aave-address-book");
 
-const poolAddress = "0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b";
 const strategyType = "Supply WETH";
 
-/* describe("Vault Tests", function () {
+ describe("Vault Tests", function () {
     async function deployVaultFixture() {
       const [owner, addr1] = await hre.ethers.getSigners();
       const StrategyFactory = await hre.ethers.getContractFactory("StrategyFactory");
   
       // Deploy strategy factory
       const factory = await StrategyFactory.deploy();
-      await factory.createStrategy(poolAddress, strategyType);
+      await factory.createStrategy(strategyType, AaveV3BaseSepolia.POOL_ADDRESSES_PROVIDER);
       
       // Get strategy contract from address
       const strategyAddress = await factory.strategies(owner.address);
@@ -26,15 +26,6 @@ const strategyType = "Supply WETH";
   
       return { strategy, vault, owner, addr1 };
     }
-
-    describe("Initialize Vault", function() {
-        it("Should have correct default values", async function() {
-            const { vault } = await loadFixture(deployVaultFixture);
-            
-            // Check protocol address
-            expect(await vault.pool()).to.be.equal(poolAddress);
-        })
-    })
 
     describe("Deposit and withdraw", function() {
         it("Should deposit", async function() {
@@ -201,16 +192,17 @@ const strategyType = "Supply WETH";
             const provider = hre.ethers.provider;
             const wethContract = new hre.ethers.Contract(contractAddress, erc20ABI, provider);
 
+            const contractBalanceBefore = await wethContract.balanceOf(vault.target);
+
             // Deposit in protocol
             await expect(
                 vault.connect(addr1).depositInProtocol(vaultWethUserBalance)
             ).to.emit(vault, "ProtocolDeposited");
 
-            const balanceBefore = await wethContract.balanceOf(vault.target);
-            console.log(balanceBefore)
-
+            const contractBalanceAfter =  await wethContract.balanceOf(vault.target);
             const vaultWethUserBalanceAfter = await vault.getWETHBalance(addr1.address);
 
+            expect(contractBalanceBefore).to.be.not.equal(contractBalanceAfter);
             expect(vaultWethUserBalanceAfter).to.be.equal(hre.ethers.parseEther("0"));
         })
         it("Shouldn't deposit WETH without funds", async function() {
@@ -249,6 +241,17 @@ const strategyType = "Supply WETH";
 
             const vaultWethUserBalance = await vault.getWETHBalance(addr1.address);
 
+            // Initialize WETH contract to interact with it
+            const contractAddress = "0x4200000000000000000000000000000000000006";
+            const erc20ABI = [
+                "function balanceOf(address account) view returns (uint256)",
+            ];
+            const provider = hre.ethers.provider;
+            const wethContract = new hre.ethers.Contract(contractAddress, erc20ABI, provider);
+
+            const balanceBefore = await wethContract.balanceOf(vault.target);
+            console.log(balanceBefore)
+
             // Approve protocol
             await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
 
@@ -261,9 +264,9 @@ const strategyType = "Supply WETH";
 
             expect(vaultWethUserBalanceAfter).to.be.equal(hre.ethers.parseEther("0"));
 
-            vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance)
+            vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance);
 
+            const balanceAfter = await wethContract.balanceOf(vault.target);
         })
-        
-    }) 
-  }); */
+    })
+  });

@@ -1,8 +1,8 @@
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect } = require("chai");
 const hre = require("hardhat");
+const { AaveV3BaseSepolia } = require("@bgd-labs/aave-address-book");
 
-const protocolAddress = "0x07eA79F68B2B3df564D0A34F8e19D9B1e339814b";
 const strategyType = "Supply WETH";
 
 describe("Strategy Tests", function () {
@@ -12,7 +12,7 @@ describe("Strategy Tests", function () {
 
     // Deploy strategy factory
     const factory = await StrategyFactory.deploy();
-    await factory.createStrategy(protocolAddress, strategyType);
+    await factory.createStrategy(strategyType, AaveV3BaseSepolia.POOL_ADDRESSES_PROVIDER);
     
     // Get strategy contract from address
     const strategyAddress = await factory.strategies(owner.address);
@@ -27,38 +27,24 @@ describe("Strategy Tests", function () {
     return { strategy, vault, owner, addr1 };
   }
 
-  /*describe("Strategy constructor", function() {
+  describe("Strategy constructor", function() {
     it("should revert if creator address is zero", async function() {
       const Strategy = await hre.ethers.getContractFactory("Strategy");
   
       // Tenter de déployer le contrat avec une adresse créateur zéro
       await expect(
-        Strategy.deploy(hre.ethers.ZeroAddress, protocolAddress, strategyType)
+        Strategy.deploy(hre.ethers.ZeroAddress, strategyType, AaveV3BaseSepolia.POOL_ADDRESSES_PROVIDER)
       ).to.be.revertedWith("Creator address cannot be zero");
     })
-  
-    it("should revert if protocol address is zero", async function() {
-      const Strategy = await hre.ethers.getContractFactory("Strategy");
-      const [owner] = await hre.ethers.getSigners();
-  
-      // Tenter de déployer le contrat avec une adresse protocole zéro
-      await expect(
-        Strategy.deploy(owner.address, hre.ethers.ZeroAddress, strategyType)
-      ).to.be.revertedWith("Protocol address cannot be zero");
-    })
-  })*/
+  })
 
-  /*describe("Initialize Strategy", function() {
+  describe("Initialize Strategy", function() {
     it("Should have variables", async function() {
       const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
 
       // Check creator
       expect(await strategy.creator())
         .to.be.equal(owner.address);
-
-      // Check protocol
-      expect(await strategy.protocol())
-        .to.be.equal(protocolAddress);
 
       // Check strategyType
       expect(await strategy.strategyType())
@@ -68,9 +54,9 @@ describe("Strategy Tests", function () {
       expect(await strategy.vault())
         .to.be.equal(vault.target);
     })
-  })*/
+  })
 
-  /*describe("Strategy Execution", function() {
+  describe("Strategy Execution", function() {
     it("Should owner deposit on the vault", async function() {
       const { strategy, vault, owner } = await loadFixture(deployStrategyFixture);
       await strategy.executeStrategy(owner.address, {value: hre.ethers.parseEther("1")});
@@ -85,5 +71,5 @@ describe("Strategy Tests", function () {
       expect(hre.ethers.formatEther(addr1Balance))
         .to.be.equal("1.0");
     })
-  })*/
+  })
 });
