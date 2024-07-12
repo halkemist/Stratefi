@@ -249,9 +249,8 @@ const strategyType = "Supply WETH";
             const provider = hre.ethers.provider;
             const wethContract = new hre.ethers.Contract(contractAddress, erc20ABI, provider);
 
-            const balanceBefore = await wethContract.balanceOf(vault.target);
+            let balanceBefore = await wethContract.balanceOf(vault.target);
             console.log(balanceBefore)
-
             // Approve protocol
             await vault.connect(addr1).approveProtocol(vaultWethUserBalance);
 
@@ -260,11 +259,19 @@ const strategyType = "Supply WETH";
                 vault.connect(addr1).depositInProtocol(vaultWethUserBalance)
             ).to.emit(vault, "ProtocolDeposited");
 
+            balanceBefore = await wethContract.balanceOf(vault.target);
+            console.log(balanceBefore)
+
             const vaultWethUserBalanceAfter = await vault.getWETHBalance(addr1.address);
 
             expect(vaultWethUserBalanceAfter).to.be.equal(hre.ethers.parseEther("0"));
 
-            vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance);
+            await expect(
+                vault.connect(addr1).withdrawFromProtocol(vaultWethUserBalance)
+            ).to.emit("ProtocolWithdrawed")
+
+            balanceBefore = await wethContract.balanceOf(vault.target);
+            console.log(balanceBefore)
 
             const balanceAfter = await wethContract.balanceOf(vault.target);
         })

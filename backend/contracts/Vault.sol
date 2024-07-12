@@ -2,6 +2,7 @@
 pragma solidity 0.8.24;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import { IPool } from "@aave/core-v3/contracts/interfaces/IPool.sol";
 import { IPoolAddressesProvider } from "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 
@@ -37,6 +38,7 @@ contract Vault is ReentrancyGuard {
     event VaultWithdrawed(address indexed account, uint256 amount);
     event ProtocolDeposited(address indexed account, uint256 amount);
     event ProtocolWithdrawed(address indexed account, uint256 amount);
+    event LogError(string message);
 
     constructor(address provider) {
         weth = IWETH(WETH_ADDRESS_BASE_SEPOLIA);
@@ -103,7 +105,7 @@ contract Vault is ReentrancyGuard {
         // Update balance
         balances[msg.sender].wethBalance -= amount;
 
-        // Deposit in POOL.
+        // Deposit in pool
         lendingPool.supply(address(weth), amount, msg.sender, 0);
 
         // Emit an event
@@ -111,13 +113,20 @@ contract Vault is ReentrancyGuard {
     }
 
     function withdrawFromProtocol(uint256 amount) payable external {
-        // Update balance
-        balances[msg.sender].wethBalance += amount;
 
-        //lendingPool.withdraw();
+        IERC20(A_TOKEN_WETH_BASE_SEPOLIA).transferFrom(msg.sender, address(this), amount);
+        IERC20(A_TOKEN_WETH_BASE_SEPOLIA).approve(address(lendingPool), amount);
 
-        // Emit an event
-        emit ProtocolWithdrawed(msg.sender, amount);
+        // Withdraw from pool
+        try lendingPool.withdraw(address(weth), amount, address(this)) {
+            // Update balance
+            balances[msg.sender].wethBalance += amount;
+
+            // Emit an event
+            emit ProtocolWithdrawed(msg.sender, amount);
+        } catch Error(string memory reason) {
+            emit LogError(reason);
+        }
     }
 
     function getContractBalance() external view returns(uint256) {
