@@ -1,5 +1,6 @@
-export const contractAddress = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
-export const contractAbi = [{
+export const contractAddress = "0x7Ace3B61664b992ae7a1122620fD0dEF85a6857c";
+export const contractAbi = [    
+{
   "inputs": [
     {
       "internalType": "contract IVotes",
@@ -871,6 +872,19 @@ export const contractAbi = [{
       "internalType": "uint256",
       "name": "",
       "type": "uint256"
+    }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+},
+{
+  "inputs": [],
+  "name": "governanceToken",
+  "outputs": [
+    {
+      "internalType": "contract IERC20",
+      "name": "",
+      "type": "address"
     }
   ],
   "stateMutability": "view",
