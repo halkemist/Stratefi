@@ -1,7 +1,7 @@
 import { http, createPublicClient } from "viem";
-import { hardhat } from "viem/chains";
+import { baseSepolia } from "viem/chains";
 
 export const config = createPublicClient({
-    chain: hardhat,
-    transport: http()
+    chain: baseSepolia,
+    transport: http(process.env.BASE_SEPOLIA_URL_ALCHEMY)
 })

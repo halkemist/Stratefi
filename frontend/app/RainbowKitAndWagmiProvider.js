@@ -11,12 +11,12 @@ import { WagmiProvider } from 'wagmi'
 import { darkTheme, getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 
 // Chains
-import { hardhat } from 'wagmi/chains';
+import { baseSepolia } from 'wagmi/chains';
 
 const config = getDefaultConfig({
     appName: 'Stratefi',
-    projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID, // todo: create a dotenv file and get id from wallet connect
-    chains: [hardhat],
+    projectId: process.env.WALLET_CONNECT_ID, // todo: create a dotenv file and get id from wallet connect
+    chains: [baseSepolia],
     ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
