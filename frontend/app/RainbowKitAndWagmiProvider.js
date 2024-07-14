@@ -15,10 +15,10 @@ import { baseSepolia } from 'wagmi/chains';
 
 const config = getDefaultConfig({
     appName: 'Stratefi',
-    projectId: process.env.WALLET_CONNECT_ID,
+    projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_ID,
     chains: [baseSepolia],
     transports: {
-      [baseSepolia.id]: http(process.env.BASE_SEPOLIA_URL_ALCHEMY)
+      [baseSepolia.id]: http(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY)
     },
     ssr: true,
 });
