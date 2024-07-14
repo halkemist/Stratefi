@@ -14,6 +14,10 @@ interface IWETH {
     function transferFrom(address account, address to, uint amount) external returns(bool);
 }
 
+/**
+ * @title Vault.
+ * @notice A contract that allow users to deposit ETH, convert to WETH and interact with AAVE protocol.
+ */
 contract Vault is ReentrancyGuard {
     // Constants
     address public constant WETH_ADDRESS_BASE_SEPOLIA = 0x4200000000000000000000000000000000000006;
@@ -41,6 +45,10 @@ contract Vault is ReentrancyGuard {
     event ProtocolWithdrawed(address indexed account, uint256 amount);
     event LogError(string message);
 
+    /**
+     * @notice Sets the WETH address, provider and lending pool.
+     * @param provider Address of the Aave PoolAddressesProvider.
+     */
     constructor(address provider) {
         weth = IWETH(WETH_ADDRESS_BASE_SEPOLIA);
         providerFull = IPoolAddressesProvider(provider);
@@ -48,15 +56,25 @@ contract Vault is ReentrancyGuard {
         poolAddress = providerFull.getPool();
     }
 
+    /**
+     * @dev Function fallback allowing contract to receive ETH
+     */
     receive() external payable {}
     
-    function depositInVault(address userAddress) external payable {
+    /**
+     * @notice Deposit ETH in the user vault balance.
+     */
+    function depositInVault() external payable {
         require(msg.value > 0, "Need more funds to deposit");
-        balances[userAddress].balance += msg.value;
-        balances[userAddress].lastAction = block.timestamp;
-        emit VaultDeposited(userAddress, msg.value);
+        balances[msg.sender].balance += msg.value;
+        balances[msg.sender].lastAction = block.timestamp;
+        emit VaultDeposited(msg.sender, msg.value);
     }
 
+    /**
+     * @notice Withdraw ETH from user vault.
+     * @param amount Amount of ETH to withdraw.
+     */
     function withdrawFromVault(uint256 amount) external nonReentrant {
         // Check the funds
         require(balances[msg.sender].balance >= amount, "Need more funds to withdraw");
@@ -71,6 +89,10 @@ contract Vault is ReentrancyGuard {
         emit VaultWithdrawed(msg.sender, amount);
     }
 
+    /**
+     * @notice Convert user balance of ETH to WETH.
+     * @param amount Amount to ETH to convert to WETH.
+     */
     function convertToWeth(uint256 amount) external {
         require(balances[msg.sender].balance >= amount, "Insufficient funds in the Vault");
         
@@ -82,6 +104,10 @@ contract Vault is ReentrancyGuard {
         weth.deposit{value: amount}();
     }
 
+    /**
+     * @notice Convert user balance of WETH to ETH.
+     * @param amount Amount of WETH to convert to ETH.
+     */
     function convertToEth(uint256 amount) external {
         require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
 
@@ -95,11 +121,19 @@ contract Vault is ReentrancyGuard {
         balances[msg.sender].balance += amount;
     }
 
+    /**
+     * @notice Approve the protocol to spend a specified amount of WETH.
+     * @param amount Amount of WETH to approve.
+     */
     function approveProtocol(uint256 amount) external {
         // Approve WETH to interact with AAVE
         weth.approve(poolAddress, amount);
     }
 
+    /**
+     * @notice Deposit WETH in Aave protocol.
+     * @param amount Amount of WETH to deposit in the protocol.
+     */
     function depositInProtocol(uint256 amount) external {
         require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
 
@@ -116,6 +150,11 @@ contract Vault is ReentrancyGuard {
         emit ProtocolDeposited(msg.sender, amount);
     }
 
+    /**
+     * @notice Withdraw WETH from AAVE protocol to user WETH balance.
+     * @param amount Amount of WETH to withdraw.
+     * @param aToken The address of the Aave aToken corresponding to WETH.
+     */
     function withdrawFromProtocol(uint256 amount, address aToken) payable external {
         IWETH(aToken).transferFrom(msg.sender, address(this), amount);
         IWETH(aToken).approve(poolAddress, amount);
@@ -130,14 +169,28 @@ contract Vault is ReentrancyGuard {
         emit ProtocolWithdrawed(msg.sender, amount);
     }
 
+    /**
+     * @dev Return the WETH contract balance of the contract.
+     * @return WETH Balance of the contract.
+     */
     function getContractBalance() external view returns(uint256) {
         return weth.balanceOf(address(this));
     }
 
+    /**
+     * @notice Return the ETH vault balance of the user.
+     * @param userAddress Address of the user.
+     * @return ETH Balance of the user.
+     */
     function getBalance(address userAddress) external view returns(uint256) {
         return balances[userAddress].balance;
     }
 
+    /**
+     * @notice Return the WETH vault balance of the user.
+     * @param userAddress Address of the user.
+     * @return WETH Balance of the user.
+     */
     function getWETHBalance(address userAddress) external view returns(uint256) {
         return balances[userAddress].wethBalance;
     }

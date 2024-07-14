@@ -99,7 +99,6 @@ const strategy = () => {
         abi: contractStrategyAbi,
         address: strategyAddress,
         functionName: "executeStrategy",
-        args: [userAddress],
         value: parseEther(ethAmount),
       }, {
         onError: (error) => {
