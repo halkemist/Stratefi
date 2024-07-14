@@ -5,7 +5,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 // Wagmi and react query config
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { WagmiProvider } from 'wagmi'
+import { http, WagmiProvider } from 'wagmi'
 
 // RainbowKit config
 import { darkTheme, getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -15,9 +15,12 @@ import { baseSepolia } from 'wagmi/chains';
 
 const config = getDefaultConfig({
     appName: 'Stratefi',
-    projectId: process.env.WALLET_CONNECT_ID, // todo: create a dotenv file and get id from wallet connect
+    projectId: process.env.WALLET_CONNECT_ID,
     chains: [baseSepolia],
-    ssr: true, // If your dApp uses server side rendering (SSR)
+    transports: {
+      [baseSepolia.id]: http(process.env.BASE_SEPOLIA_URL_ALCHEMY)
+    },
+    ssr: true,
 });
 
 const queryClient = new QueryClient();
