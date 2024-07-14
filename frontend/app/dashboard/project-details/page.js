@@ -71,7 +71,7 @@ const ProjectDetails = () => {
           <TableRow>
             <TableCell className="font-bold">Roadmap</TableCell>
             <TableCell>- <span className="font-bold">Phase 1 :</span> Lancement de la version bêta et intégration avec Aave. 
-              <br></br>- <span className="font-bold">Phase 2 :</span> Introduction du token de gouvernance et des fonctionnalités de "copy trading".
+              <br></br>- <span className="font-bold">Phase 2 :</span> Introduction du token de gouvernance et des fonctionnalités de &quot;copy trading&quot;.
               <br></br>- <span className="font-bold">Phase 3 :</span> Expansion des fonctionnalités et partenariats supplémentaires.
             </TableCell>
           </TableRow>

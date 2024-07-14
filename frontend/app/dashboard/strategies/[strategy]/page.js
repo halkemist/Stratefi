@@ -19,7 +19,7 @@ import { contractAbi as contractVaultAbi } from '@/constants/vault';
 import { contractAddress as contractATokenAddress } from '@/constants/atoken';
 import { contractAbi as contractATokenAbi } from '@/constants/atoken';
 
-const strategy = () => {
+const Strategy = () => {
   const { writeContractAsync } = useWriteContract();
   const { toast } = useToast();
 
@@ -343,4 +343,4 @@ const strategy = () => {
   )
 }
 
-export default strategy;
+export default Strategy;
