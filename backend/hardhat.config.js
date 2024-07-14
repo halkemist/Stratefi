@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -6,7 +7,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://base-mainnet.g.alchemy.com/v2/JsAqNHXP-MepnwT1JIOq1c5Rz5TmfhVD"
+        url: process.env.BASE_SEPOLIA_URL_ALCHEMY
       }
     }
   },

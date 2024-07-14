@@ -19,6 +19,7 @@
   "dependencies": {
     "@aave/core-v3": "^1.19.3",
     "@bgd-labs/aave-address-book": "^2.30.0",
-    "@openzeppelin/contracts": "^5.0.2"
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5"
   }
 }
