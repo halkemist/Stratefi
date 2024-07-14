@@ -21,7 +21,7 @@ const ProjectDetails = () => {
           <TableRow>
             <TableCell className="font-bold">Introduction</TableCell>
             <TableCell>- Notre application vise à permettre aux utilisateurs de créer, copier et gérer des stratégies dans la finance décentralisée (DeFi).
-              <br></br>- Notre mission est de simplifier et démocratiser l'accès aux opportunités DeFi tout en offrant des outils avancés de suivi et de gestion.
+              <br></br>- Notre mission est de simplifier et démocratiser l&apos;accès aux opportunités DeFi tout en offrant des outils avancés de suivi et de gestion.
             </TableCell>
           </TableRow>
           <TableRow>
@@ -41,12 +41,12 @@ const ProjectDetails = () => {
           <TableRow>
             <TableCell className="font-bold">Intégration avec Aave</TableCell>
             <TableCell>- Utilisation du protocole Aave pour les prêts et les emprunts. 
-              <br></br>- Accès à des taux d'intérêt compétitifs et à des opportunités de rendement.
+              <br></br>- Accès à des taux d&apos;intérêt compétitifs et à des opportunités de rendement.
             </TableCell>
           </TableRow>
           <TableRow>
             <TableCell className="font-bold">Token de Gouvernance (DAO)</TableCell>
-            <TableCell>- Introduction d'un token de gouvernance pour participer aux décisions clés. 
+            <TableCell>- Introduction d&apos;un token de gouvernance pour participer aux décisions clés. 
               <br></br>- Récompenses et incitations pour les détenteurs de tokens.
             </TableCell>
           </TableRow>
@@ -64,7 +64,7 @@ const ProjectDetails = () => {
           </TableRow>
           <TableRow>
             <TableCell className="font-bold">Equipe et Partenaires</TableCell>
-            <TableCell>- Présentation de l'équipe de développement avec des profils LinkedIn. 
+            <TableCell>- Présentation de l&apos;équipe de développement avec des profils LinkedIn. 
               <br></br>- Partenaires stratégiques et collaborations clés.
             </TableCell>
           </TableRow>
