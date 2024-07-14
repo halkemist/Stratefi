@@ -41,8 +41,8 @@ contract Strategy {
         emit VaultCreated(address(newVault));
     }
 
-    function executeStrategy() payable external {
-        Vault(vault).depositInVault{value: msg.value}(msg.sender);
+    function executeStrategy(address userAddress) payable external {
+        Vault(vault).depositInVault{value: msg.value}(userAddress);
         uses += 1;
     }
 }

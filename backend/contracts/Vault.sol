@@ -27,8 +27,6 @@ contract Vault is ReentrancyGuard {
     IWETH public immutable weth;
     IPool internal lendingPool;
     IPoolAddressesProvider public providerFull;
-
-    // Pool address
     address public poolAddress;
 
     struct Account {
@@ -64,11 +62,16 @@ contract Vault is ReentrancyGuard {
     /**
      * @notice Deposit ETH in the user vault balance.
      */
-    function depositInVault() external payable {
+    function depositInVault(address userAddress) external payable nonReentrant {
+        // Check the funds
         require(msg.value > 0, "Need more funds to deposit");
-        balances[msg.sender].balance += msg.value;
-        balances[msg.sender].lastAction = block.timestamp;
-        emit VaultDeposited(msg.sender, msg.value);
+
+        // Update balance
+        balances[userAddress].balance += msg.value;
+        balances[userAddress].lastAction = block.timestamp;
+
+        // Emit event
+        emit VaultDeposited(userAddress, msg.value);
     }
 
     /**
@@ -93,7 +96,8 @@ contract Vault is ReentrancyGuard {
      * @notice Convert user balance of ETH to WETH.
      * @param amount Amount to ETH to convert to WETH.
      */
-    function convertToWeth(uint256 amount) external {
+    function convertToWeth(uint256 amount) external nonReentrant {
+        // Check the funds
         require(balances[msg.sender].balance >= amount, "Insufficient funds in the Vault");
         
         // Update the balance
@@ -108,17 +112,15 @@ contract Vault is ReentrancyGuard {
      * @notice Convert user balance of WETH to ETH.
      * @param amount Amount of WETH to convert to ETH.
      */
-    function convertToEth(uint256 amount) external {
+    function convertToEth(uint256 amount) external nonReentrant {
         require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
 
         // Update balance
         balances[msg.sender].wethBalance -= amount;
+        balances[msg.sender].balance += amount;
 
         // Convert WETH to ETH
-        weth.withdraw(amount);
-
-        // update balance
-        balances[msg.sender].balance += amount;
+        weth.withdraw(amount);        
     }
 
     /**
@@ -127,14 +129,14 @@ contract Vault is ReentrancyGuard {
      */
     function approveProtocol(uint256 amount) external {
         // Approve WETH to interact with AAVE
-        weth.approve(poolAddress, amount);
+        require(weth.approve(poolAddress, amount), "Approval Failed");
     }
 
     /**
      * @notice Deposit WETH in Aave protocol.
      * @param amount Amount of WETH to deposit in the protocol.
      */
-    function depositInProtocol(uint256 amount) external {
+    function depositInProtocol(uint256 amount) external nonReentrant {
         require(balances[msg.sender].wethBalance >= amount, "Insufficient WETH balance");
 
         // Update balance
@@ -155,9 +157,9 @@ contract Vault is ReentrancyGuard {
      * @param amount Amount of WETH to withdraw.
      * @param aToken The address of the Aave aToken corresponding to WETH.
      */
-    function withdrawFromProtocol(uint256 amount, address aToken) payable external {
+    function withdrawFromProtocol(uint256 amount, address aToken) payable external nonReentrant {
         IWETH(aToken).transferFrom(msg.sender, address(this), amount);
-        IWETH(aToken).approve(poolAddress, amount);
+        require(IWETH(aToken).approve(poolAddress, amount), "Approval Failed");
 
         // Withdraw from pool
         lendingPool.withdraw(address(weth), amount, address(this));
