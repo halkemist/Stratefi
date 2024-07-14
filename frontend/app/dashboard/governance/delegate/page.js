@@ -25,7 +25,7 @@ const Delegate = () => {
   const { toast } = useToast();
 
   // Watch
-
+  
   useWatchContractEvent({
     address: contractAddress,
     abi: contractAbi,

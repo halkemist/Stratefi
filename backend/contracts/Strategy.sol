@@ -17,6 +17,9 @@ contract Strategy {
     /// @notice Address of the associated vault.
     address payable public immutable vault;
 
+    /// @notice Strategy uses count.
+    uint16 public uses;
+
     event VaultCreated(address vaultAddress);
 
     /**
@@ -30,6 +33,7 @@ contract Strategy {
         // Assign values
         creator = newCreator;
         strategyType = newStrategyType;
+        uses = 0;
 
         // Deploy Vault contract
         Vault newVault = new Vault(provider);
@@ -39,5 +43,6 @@ contract Strategy {
 
     function executeStrategy(address userAddress) payable external {
         Vault(vault).depositInVault{value: msg.value}(userAddress);
+        uses += 1;
     }
 }

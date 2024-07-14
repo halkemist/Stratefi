@@ -44,7 +44,7 @@ const CreateStrategy = () => {
         },
         onSuccess: (data) => {
           toast({
-            variant: "primary",
+            variant: "outline",
             title: "Strategy Created Successfully",
             description: ":)"
           })

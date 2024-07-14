@@ -1,8 +1,6 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
 module.exports = buildModule("StrateFiGovernance", (m) => {
-    //const stratefitoken = m.contractAt("StrateFiToken", "0x5FbDB2315678afecb367f032d93F642f64180aa3");
-    const stratefigovernance = m.contract("StrateFiGovernance", ["0x1380Ba5AF0799da9eD4f1072929bdC55Cb899BD5"]);
-
+    const stratefigovernance = m.contract("StrateFiGovernance", ["0x8f9374e559272F7f8CB9AA5E6E207de02eD8A03B"]);
     return { stratefigovernance };
 });

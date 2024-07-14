@@ -1,5 +1,6 @@
-export const contractAddress = "0x8f9374e559272F7f8CB9AA5E6E207de02eD8A03B";
-export const contractAbi = [    {
+export const contractAddress = "0x740418969eC7B1e89Ca05Cebc72b4C4391920f4a";
+export const contractAbi = [
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -48,4 +49,5 @@ export const contractAbi = [    {
     ],
     "stateMutability": "view",
     "type": "function"
-  }];
+  }
+];
