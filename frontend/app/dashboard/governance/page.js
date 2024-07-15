@@ -47,12 +47,12 @@ const Governance = () => {
   });
 
   // Watch events
-  const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
-  const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
-  const pollingInterval = 10000;
-  let lastCheckedBlock = 12602042;
+  //const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
+  //const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
+  //const pollingInterval = 10000;
+  //let lastCheckedBlock = 12602042;
 
-  async function fetchEvents() {
+  /*async function fetchEvents() {
     try {
       const latestBlock = await provider.getBlockNumber();
       if (lastCheckedBlock === 0) {
@@ -102,13 +102,14 @@ const Governance = () => {
   }
   
   // Start polling
-  setInterval(fetchEvents, pollingInterval);
+  setInterval(fetchEvents, pollingInterval);*/
 
-  /*useWatchContractEvent({
+  useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
     fromBlock: BigInt(12602042),
-    eventName: "ProposalCreated",
+    eventName: 'ProposalCreated',
+    config: config,
     onLogs(logs) {
       console.log(logs)
       if (logs.length > 0) {
@@ -130,7 +131,7 @@ const Governance = () => {
         }, 1000)
       }
     }
-  });*/
+  });
 
   // Handle //
 
