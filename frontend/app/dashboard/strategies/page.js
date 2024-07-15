@@ -40,7 +40,6 @@ const Strategies = () => {
     toBlock: "latest",
     eventName: "StrategyCreated",
     onLogs(logs) {
-      console.log(logs)
       if (logs.length > 0) {
         const newAddresses = logs.map(log => log.args.strategyAddress)
         setStrategiesAddresses(prevAddresses => {

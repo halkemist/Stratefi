@@ -7,7 +7,6 @@ import { config } from "@/app/config";
 
 // Wagmi
 import { useWriteContract, useWatchBlockNumber, useAccount, useWatchContractEvent } from "wagmi";
-import { ethers, JsonRpcProvider } from "ethers";
 
 // React
 import { useEffect, useState } from "react";
@@ -39,72 +38,13 @@ const Governance = () => {
   const [ totalSupply, setTotalSupply ] = useState(0);
 
   // Watch //
-
   useWatchBlockNumber({
     onBlockNumber(blockNumber) {
       setCurrentBlockNumber(Number(blockNumber))
     },
   });
 
-  // Watch events
-  //const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
-  //const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
-  const pollingInterval = 10000;
-  let lastCheckedBlock = 12602042;
-
-  /*async function fetchEvents() {
-    try {
-      const latestBlock = await provider.getBlockNumber();
-      if (lastCheckedBlock === 0) {
-        lastCheckedBlock = latestBlock - 1; // Initialize lastCheckedBlock to the latest block - 1
-      }
-  
-      const events = await contract.queryFilter(
-        "ProposalCreated",
-        lastCheckedBlock + 1,
-        latestBlock
-      );
-
-      const proposals = [];
-  
-      for (const event of events) {
-        const proposalData = { ...event.args };
-
-        console.log(proposalData)
-
-        try {
-          const stateResponse = await getProposalState(proposalData.proposalId);
-          proposalData.state = beautifulState(stateResponse);
-        } catch (stateError) {
-          console.error('Error fetching proposal state:', stateError);
-          continue;
-        }
-  
-        try {
-          const votesResponse = await getProposalVotes(proposalData.proposalId);
-          proposalData.votes = votesResponse;
-        } catch (votesError) {
-          console.error('Error fetching proposal votes:', votesError);
-          continue;
-        }
-
-        proposals.push(proposalData);
-      }
-
-      setTimeout(() => {
-        setProposals(proposals)
-      }, 1000)
-
-      lastCheckedBlock = latestBlock;
-    } catch (error) {
-      console.error('Error fetching events:', error);
-    }
-  }*/
-  
-  // Start polling
-  //setInterval(fetchEvents, pollingInterval);
-
-  useWatchContractEvent({
+  /*useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
     fromBlock: BigInt(12602042),
@@ -131,16 +71,15 @@ const Governance = () => {
         }, 1000)
       }
     }
-  });
+  });*/
 
 
-  /*const unwatch = config.watchContractEvent({
+  const unwatch = config.watchContractEvent({
     address: contractAbiGovernance,
     abi: contractAbiGovernance,
     eventName: 'ProposalCreated',
     fromBlock: BigInt(12602042),
     onLogs: (logs) => {
-      console.log(logs)
       if (logs.length > 0) {
         logs.forEach(element => {
           getProposalState(element.args.proposalId)
@@ -149,7 +88,6 @@ const Governance = () => {
           })
           getProposalVotes(element.args.proposalId)
           .then((response) => {
-            console.log(response)
             element.args.votes = response
           }).catch((error) => {
             console.log(error)
@@ -160,7 +98,7 @@ const Governance = () => {
         }, 1000)
       }
     }
-  })*/
+  })
 
   // Handle //
   const handleInputChange = (event) => {
@@ -307,9 +245,6 @@ const Governance = () => {
   }
 
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID)
-    console.log(contractAddressGovernance)
-    console.log(contractAbiGovernance)
     getTotalSupply().then((response) => {
       setTotalSupply(Number(BigInt(response))) 
     });
