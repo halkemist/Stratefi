@@ -39,6 +39,7 @@ const Strategies = () => {
     eventName: "StrategyCreated",
     onLogs(logs) {
       if (logs.length > 0) {
+        console.log(logs)
         const newAddresses = logs.map(log => log.args.strategyAddress)
         setStrategiesAddresses(prevAddresses => {
           const addressSet = new Set([...prevAddresses, ...newAddresses]);

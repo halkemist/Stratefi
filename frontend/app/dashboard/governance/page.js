@@ -51,6 +51,7 @@ const Governance = () => {
     fromBlock: BigInt(12647182),
     eventName: "ProposalCreated",
     onLogs(logs) {
+      console.log(logs)
       if (logs.length > 0) {
         logs.forEach(element => {
           getProposalState(element.args.proposalId)
