@@ -21,12 +21,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { FaSpinner } from "react-icons/fa";
 
 const Strategies = () => {
 
   const { address } = useAccount();
   const [strategiesAddresses, setStrategiesAddresses] = useState([]);
   const [strategies, setStrategies] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   useWatchContractEvent({
     address: contractFactoryAddress,
@@ -45,7 +47,10 @@ const Strategies = () => {
   })
 
   useEffect(() => {
-    console.log('strategies updated')
+    setLoader(true);
+  }, [])
+
+  useEffect(() => {
     if(strategiesAddresses.length > 0) {
       fetchStrategies();
     }
@@ -53,6 +58,7 @@ const Strategies = () => {
 
   const fetchStrategies = async() => {
     const strategiesData = await Promise.all(strategiesAddresses.map(addy => fetchStrategy(addy)));
+    setLoader(false);
     setStrategies(strategiesData);
   }
 
@@ -96,26 +102,34 @@ const Strategies = () => {
   return (
     <>
       <h2 className="font-bold text-2xl">Strategies</h2>
-      <div className="mt-4">
+
+      {loader ? (
+        <div className="flex items-center gap-2">
+          <FaSpinner className="spinner"/> 
+          <span>Loading...</span>
+        </div>
+      ) : (
+        <div className="mt-4">
         {strategies.map(strategy => (
-          <Card key={strategy.address} className="w-1/3 mb-2">
-            <CardHeader>
-              <CardTitle>{strategy.name}</CardTitle>
-              <CardDescription>Author: {strategy.creator}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              Uses: {strategy.uses}
-            </CardContent>
-            <CardFooter>
-              <Link href={`/dashboard/strategies/${strategy.address}`}>
-                <Button disabled={strategy.creator === address ? true : false}>
-                  Use Strategy
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+            <Card key={strategy.address} className="w-1/3 mb-2">
+              <CardHeader>
+                <CardTitle>{strategy.name}</CardTitle>
+                <CardDescription>Author: {strategy.creator}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                Uses: {strategy.uses}
+              </CardContent>
+              <CardFooter>
+                <Link href={`/dashboard/strategies/${strategy.address}`}>
+                  <Button disabled={strategy.creator === address ? true : false}>
+                    Use Strategy
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
     </>
   )
 }

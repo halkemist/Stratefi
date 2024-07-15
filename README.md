@@ -4,12 +4,19 @@
 
 ## Getting Started
 
+Config files:
+frontend/app/config.js
+frontend/app/RainbowKitAndWagmiProvider.js
+backend/hardhat.config.js
+
 First, deploy the smart contracts (be careful you need to put the correct addresses in different ignition modules):
 ```bash
 yarn hardhat ignition deploy ./ignition/modules StrateFiToken.js --network localhost
 yarn hardhat ignition deploy ./ignition/modules StrateFiGovernance.js --network localhost
 yarn hardhat ignition deploy ./ignition/modules StrategySystem.js --network localhost
 ```
+
+And change contract addresses in frontend constants folder.
 
 Then, run the development server:
 ```bash

@@ -2,10 +2,10 @@
 
 import { useParams } from 'next/navigation';
 import { useAccount, useWriteContract } from 'wagmi';
+import { waitForTransactionReceipt } from 'viem/actions';
 import { useEffect, useState } from 'react';
 import { config } from '@/app/config';
 import { parseEther, formatEther } from 'viem';
-import { Contract } from "viem";
 
 // UI components
 import { FaSpinner } from 'react-icons/fa';
@@ -113,8 +113,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -138,8 +137,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -163,8 +161,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -188,8 +185,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -217,8 +213,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -246,8 +241,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -271,8 +265,7 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
@@ -296,12 +289,34 @@ const Strategy = () => {
           })
         },
         onSuccess: (data) => {
-          console.log(data)
-          fetchData();
+          waitForTx(data);
         }
       })
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  const waitForTx = async(txHash) => {
+    setLoader(true);
+    try {
+      const receipt = await config.waitForTransactionReceipt({
+        hash: txHash,
+      });
+      if(receipt.status === 'success') {
+        setTimeout(() => {
+          fetchData();
+        }, 1000)
+      } else {
+        setLoader(false);
+        toast({
+          variant: "destructive",
+          title: "Transaction error, please refresh the page or retry",
+          description: error.cause.message
+        })
+      }
+    } catch (error) {
+      setLoader(false);
     }
   }
 
