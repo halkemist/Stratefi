@@ -35,11 +35,11 @@ const Strategies = () => {
   useWatchContractEvent({
     address: contractFactoryAddress,
     abi: contractFactoryAbi,
-    fromBlock: BigInt(12647182),
+    fromBlock: BigInt(12648000),
     eventName: "StrategyCreated",
     onLogs(logs) {
+      console.log(logs)
       if (logs.length > 0) {
-        console.log(logs)
         const newAddresses = logs.map(log => log.args.strategyAddress)
         setStrategiesAddresses(prevAddresses => {
           const addressSet = new Set([...prevAddresses, ...newAddresses]);

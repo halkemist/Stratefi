@@ -3,6 +3,8 @@
 // Core
 import { useState } from "react";
 import { useWriteContract } from "wagmi";
+import { waitForTransactionReceipt } from "viem/actions";
+import { config } from "@/app/config";
 
 // UI components
 import { Button } from "@/components/ui/button";
@@ -36,24 +38,49 @@ const CreateStrategy = () => {
         onError: (error) => {
           toast({
             variant: "destructive",
-            title: "Delegate error",
+            title: "Strategy creation error",
             description: error.cause.message
           })
 
           setLoader(false);
         },
         onSuccess: (data) => {
-          toast({
-            variant: "outline",
-            title: "Strategy Created Successfully",
-            description: ":)"
-          })
-          setLoader(false);
+          waitForTx(data);
         }
       })
     } catch (err) {
       setLoader(false);
       console.log(err);
+    }
+  }
+
+  const waitForTx = async(txHash) => {
+
+    console.log(txHash)
+    setLoader(true);
+    try {
+      const receipt = await config.waitForTransactionReceipt({
+        hash: txHash,
+      });
+      if(receipt.status === 'success') {
+        setLoader(false);
+        setTimeout(() => {
+          toast({
+            variant: "outline",
+            title: "Strategy Created Successfully",
+            description: ":)"
+          })
+        }, 1000)
+      } else {
+        setLoader(false);
+        toast({
+          variant: "destructive",
+          title: "Transaction error, please refresh the page or retry",
+          description: error.cause.message
+        })
+      }
+    } catch (error) {
+      setLoader(false);
     }
   }
 

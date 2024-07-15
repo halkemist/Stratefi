@@ -29,7 +29,7 @@ const Delegate = () => {
   useWatchContractEvent({
     address: contractAddress,
     abi: contractAbi,
-    fromBlock: BigInt(0),
+    fromBlock: BigInt(12648000),
     eventName: "DelegateChanged",
     onLogs(logs) {
       console.log(logs)
