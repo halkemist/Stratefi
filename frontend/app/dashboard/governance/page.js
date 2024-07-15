@@ -6,7 +6,8 @@ import { contractAbi as contractAbiToken, contractAddress as contractAddressToke
 import { config } from "@/app/config";
 
 // Wagmi
-import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount, useReadContract } from "wagmi";
+import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
+import { ethers } from "ethers";
 
 // React
 import { useEffect, useState } from "react";
@@ -43,6 +44,25 @@ const Governance = () => {
     onBlockNumber(blockNumber) {
       setCurrentBlockNumber(Number(blockNumber))
     },
+  });
+
+  // Watch events
+  const provider = new ethers.providers.JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
+  const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
+  contract.on("ProposalCreated", (proposalId, proposer, targets, values, signatures, calldatas, startBlock, endBlock, description, event) => {
+    console.log("ProposalCreated event detected:");
+    console.log("Proposal ID:", proposalId);
+    console.log("Proposer:", proposer);
+    console.log("Targets:", targets);
+    console.log("Values:", values);
+    console.log("Signatures:", signatures);
+    console.log("Calldatas:", calldatas);
+    console.log("Start Block:", startBlock);
+    console.log("End Block:", endBlock);
+    console.log("Description:", description);
+  })
+  .catch((error) => {
+    console.error('Error watching contract event:', error);
   });
 
   useWatchContractEvent({
@@ -220,7 +240,6 @@ const Governance = () => {
 
   useEffect(() => {
     console.log(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID)
-    console.log(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY)
     console.log(contractAddressGovernance)
     console.log(contractAbiGovernance)
     getTotalSupply().then((response) => {
