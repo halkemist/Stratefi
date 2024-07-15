@@ -35,7 +35,7 @@ const Strategies = () => {
   useWatchContractEvent({
     address: contractFactoryAddress,
     abi: contractFactoryAbi,
-    fromBlock: BigInt(12648000),
+    fromBlock: BigInt(12602042),
     eventName: "StrategyCreated",
     onLogs(logs) {
       console.log(logs)
