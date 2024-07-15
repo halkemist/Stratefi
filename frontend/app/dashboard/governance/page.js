@@ -7,7 +7,7 @@ import { config } from "@/app/config";
 
 // Wagmi
 import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
-import { ethers, JsonRpcProvider } from "ethers";
+import { ethers, JsonRpcProvider, WebSocketProvider } from "ethers";
 
 // React
 import { useEffect, useState } from "react";
@@ -47,7 +47,7 @@ const Governance = () => {
   });
 
   // Watch events
-  const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
+  const provider = new WebSocketProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
   const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
   contract.on("ProposalCreated", (proposalId, proposer, targets, values, signatures, calldatas, startBlock, endBlock, description, event) => {
     console.log("ProposalCreated event detected:");
@@ -65,7 +65,7 @@ const Governance = () => {
     console.error('Error watching contract event:', error);
   });
 
-  useWatchContractEvent({
+  /*useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
     fromBlock: BigInt(12602042),
@@ -91,7 +91,7 @@ const Governance = () => {
         }, 1000)
       }
     }
-  });
+  });*/
 
   // Handle //
 
