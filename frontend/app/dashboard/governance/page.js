@@ -49,21 +49,48 @@ const Governance = () => {
   // Watch events
   const provider = new WebSocketProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
   const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
-  contract.on("ProposalCreated", (proposalId, proposer, targets, values, signatures, calldatas, startBlock, endBlock, description, event) => {
-    console.log("ProposalCreated event detected:");
-    console.log("Proposal ID:", proposalId);
-    console.log("Proposer:", proposer);
-    console.log("Targets:", targets);
-    console.log("Values:", values);
-    console.log("Signatures:", signatures);
-    console.log("Calldatas:", calldatas);
-    console.log("Start Block:", startBlock);
-    console.log("End Block:", endBlock);
-    console.log("Description:", description);
-  })
-  .catch((error) => {
-    console.error('Error watching contract event:', error);
-  });
+  const pollingInterval = 5000;
+  let lastCheckedBlock = 12602042;
+
+  async function fetchEvents() {
+    try {
+      const latestBlock = await provider.getBlockNumber();
+      if (lastCheckedBlock === 0) {
+        lastCheckedBlock = latestBlock - 1; // Initialize lastCheckedBlock to the latest block - 1
+      }
+  
+      const events = await contract.queryFilter(
+        "ProposalCreated",
+        lastCheckedBlock + 1,
+        latestBlock
+      );
+  
+      for (const event of events) {
+        getProposalState(event.args.proposalId)
+          .then((response) => {
+            event.args.state = beautifulState(response)
+          })
+          getProposalVotes(event.args.proposalId)
+          .then((response) => {
+            console.log(response)
+            event.args.votes = response
+          }).catch((error) => {
+            console.log(error)
+          })
+      }
+
+      setTimeout(() => {
+        setProposals(events)
+      }, 1000)
+
+      lastCheckedBlock = latestBlock;
+    } catch (error) {
+      console.error('Error fetching events:', error);
+    }
+  }
+  
+  // Start polling
+  setInterval(fetchEvents, pollingInterval);
 
   /*useWatchContractEvent({
     address: contractAddressGovernance,
