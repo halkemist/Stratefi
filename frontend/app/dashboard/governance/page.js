@@ -104,7 +104,7 @@ const Governance = () => {
   // Start polling
   setInterval(fetchEvents, pollingInterval);*/
 
-  useWatchContractEvent({
+  /*useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
     fromBlock: BigInt(12602042),
@@ -131,7 +131,7 @@ const Governance = () => {
         }, 1000)
       }
     }
-  });
+  });*/
 
   // Handle //
 
