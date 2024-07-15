@@ -6,7 +6,7 @@ import { contractAbi as contractAbiToken, contractAddress as contractAddressToke
 import { config } from "@/app/config";
 
 // Wagmi
-import { useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
+import { useWriteContract, useWatchBlockNumber, useAccount, useWatchContractEvent } from "wagmi";
 import { ethers, JsonRpcProvider } from "ethers";
 
 // React

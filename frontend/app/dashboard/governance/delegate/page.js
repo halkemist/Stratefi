@@ -7,13 +7,10 @@ import { useToast } from "@/components/ui/use-toast";
 
 // Hooks
 import { useState } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useWriteContract, useWatchContractEvent } from "wagmi";
 
 // Constants
 import { contractAbi, contractAddress } from "@/constants/token";
-
-// Wagmi
-import { useWatchContractEvent } from "wagmi";
 
 const Delegate = () => {
 
