@@ -48,17 +48,7 @@ const Governance = () => {
   useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
-    fromBlock: BigInt(12500000),
-    eventName: "",
-    onLogs(logs) {
-      console.log(logs)
-    }
-  })
-
-  useWatchContractEvent({
-    address: contractAddressGovernance,
-    abi: contractAbiGovernance,
-    fromBlock: BigInt(0),
+    fromBlock: currentBlockNumber - 4999,
     eventName: "ProposalCreated",
     onLogs(logs) {
       if (logs.length > 0) {
