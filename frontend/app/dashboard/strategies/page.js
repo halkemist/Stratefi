@@ -37,6 +37,7 @@ const Strategies = () => {
     address: contractFactoryAddress,
     abi: contractFactoryAbi,
     fromBlock: BigInt(12602042),
+    toBlock: "latest",
     eventName: "StrategyCreated",
     onLogs(logs) {
       console.log(logs)

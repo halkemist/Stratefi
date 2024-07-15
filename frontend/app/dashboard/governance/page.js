@@ -6,7 +6,7 @@ import { contractAbi as contractAbiToken, contractAddress as contractAddressToke
 import { config } from "@/app/config";
 
 // Wagmi
-import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
+import { useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
 import { ethers, JsonRpcProvider } from "ethers";
 
 // React
@@ -47,12 +47,12 @@ const Governance = () => {
   });
 
   // Watch events
-  const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
-  const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
+  //const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
+  //const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
   const pollingInterval = 10000;
   let lastCheckedBlock = 12602042;
 
-  async function fetchEvents() {
+  /*async function fetchEvents() {
     try {
       const latestBlock = await provider.getBlockNumber();
       if (lastCheckedBlock === 0) {
@@ -99,16 +99,17 @@ const Governance = () => {
     } catch (error) {
       console.error('Error fetching events:', error);
     }
-  }
+  }*/
   
   // Start polling
-  setInterval(fetchEvents, pollingInterval);
+  //setInterval(fetchEvents, pollingInterval);
 
-  /*useWatchContractEvent({
+  useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
     fromBlock: BigInt(12602042),
-    eventName: 'ProposalCreated',
+    toBlock: "latest",
+    eventName: "ProposalCreated",
     onLogs(logs) {
       console.log(logs)
       if (logs.length > 0) {
@@ -130,7 +131,7 @@ const Governance = () => {
         }, 1000)
       }
     }
-  });*/
+  });
 
 
   /*const unwatch = config.watchContractEvent({

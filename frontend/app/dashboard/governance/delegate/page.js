@@ -29,6 +29,7 @@ const Delegate = () => {
     address: contractAddress,
     abi: contractAbi,
     fromBlock: BigInt(12602042),
+    toBlock: "latest",
     eventName: "DelegateChanged",
     onLogs(logs) {
       console.log(logs)
