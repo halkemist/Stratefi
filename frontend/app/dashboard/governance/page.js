@@ -219,6 +219,8 @@ const Governance = () => {
   }
 
   useEffect(() => {
+    console.log(process.env.NEXT_PUBLIC_WALLET_CONNECT_ID)
+    console.log(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY)
     getTotalSupply().then((response) => {
       setTotalSupply(Number(BigInt(response))) 
     });

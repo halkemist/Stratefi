@@ -50,6 +50,7 @@ const Strategies = () => {
   })
 
   useEffect(() => {
+    console.log('strategy page load')
     setLoader(true);
   }, [])
 
