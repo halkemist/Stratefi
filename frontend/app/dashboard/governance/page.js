@@ -104,12 +104,11 @@ const Governance = () => {
   // Start polling
   setInterval(fetchEvents, pollingInterval);*/
 
-  /*useWatchContractEvent({
+  useWatchContractEvent({
     address: contractAddressGovernance,
     abi: contractAbiGovernance,
     fromBlock: BigInt(12602042),
     eventName: 'ProposalCreated',
-    config: config,
     onLogs(logs) {
       console.log(logs)
       if (logs.length > 0) {
@@ -131,10 +130,10 @@ const Governance = () => {
         }, 1000)
       }
     }
-  });*/
+  });
 
 
-  const unwatch = config.watchContractEvent({
+  /*const unwatch = config.watchContractEvent({
     address: contractAbiGovernance,
     abi: contractAbiGovernance,
     eventName: 'ProposalCreated',
@@ -160,7 +159,7 @@ const Governance = () => {
         }, 1000)
       }
     }
-  })
+  })*/
 
   // Handle //
   const handleInputChange = (event) => {
