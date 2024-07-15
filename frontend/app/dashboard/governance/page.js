@@ -7,7 +7,7 @@ import { config } from "@/app/config";
 
 // Wagmi
 import { useWatchContractEvent, useWriteContract, useWatchBlockNumber, useAccount } from "wagmi";
-import { ethers, JsonRpcProvider, WebSocketProvider } from "ethers";
+import { ethers, JsonRpcProvider } from "ethers";
 
 // React
 import { useEffect, useState } from "react";
@@ -47,9 +47,9 @@ const Governance = () => {
   });
 
   // Watch events
-  const provider = new WebSocketProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
+  const provider = new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_SEPOLIA_URL_ALCHEMY);
   const contract = new ethers.Contract(contractAddressGovernance, contractAbiGovernance, provider);
-  const pollingInterval = 5000;
+  const pollingInterval = 10000;
   let lastCheckedBlock = 12602042;
 
   async function fetchEvents() {
@@ -70,11 +70,23 @@ const Governance = () => {
       for (const event of events) {
         const proposalData = { ...event.args };
 
-        const stateResponse = await getProposalState(proposalData.proposalId);
-        proposalData.state = beautifulState(stateResponse);
+        console.log(proposalData)
 
-        const votesReponse = await getProposalVotes(proposalData.proposalId);
-        proposalData.votes = votesReponse;
+        try {
+          const stateResponse = await getProposalState(proposalData.proposalId);
+          proposalData.state = beautifulState(stateResponse);
+        } catch (stateError) {
+          console.error('Error fetching proposal state:', stateError);
+          continue;
+        }
+  
+        try {
+          const votesResponse = await getProposalVotes(proposalData.proposalId);
+          proposalData.votes = votesResponse;
+        } catch (votesError) {
+          console.error('Error fetching proposal votes:', votesError);
+          continue;
+        }
 
         proposals.push(proposalData);
       }
