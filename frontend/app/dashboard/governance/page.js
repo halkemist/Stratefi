@@ -133,8 +133,36 @@ const Governance = () => {
     }
   });*/
 
-  // Handle //
 
+  const unwatch = config.watchContractEvent({
+    address: contractAbiGovernance,
+    abi: contractAbiGovernance,
+    eventName: 'ProposalCreated',
+    fromBlock: BigInt(12602042),
+    onLogs: (logs) => {
+      console.log(logs)
+      if (logs.length > 0) {
+        logs.forEach(element => {
+          getProposalState(element.args.proposalId)
+          .then((response) => {
+            element.args.state = beautifulState(response)
+          })
+          getProposalVotes(element.args.proposalId)
+          .then((response) => {
+            console.log(response)
+            element.args.votes = response
+          }).catch((error) => {
+            console.log(error)
+          })
+        });
+        setTimeout(() => {
+          setProposals(logs)
+        }, 1000)
+      }
+    }
+  })
+
+  // Handle //
   const handleInputChange = (event) => {
     setProposalInput(event.target.value);
   };
