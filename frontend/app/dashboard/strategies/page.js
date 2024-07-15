@@ -51,6 +51,8 @@ const Strategies = () => {
 
   useEffect(() => {
     console.log('strategy page load')
+    console.log(contractFactoryAddress)
+    console.log(contractFactoryAbi)
     setLoader(true);
   }, [])
 
