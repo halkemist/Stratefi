@@ -7,7 +7,7 @@ import Link from "next/link";
 // Constants
 import { contractAddress as contractFactoryAddress, contractAbi as contractFactoryAbi } from "@/constants/strategyfactory";
 import { contractAbi as contractStrategyAbi } from "@/constants/strategy";
-import { useWatchContractEvent } from "wagmi";
+import { useWatchContractEvent, useWatchBlockNumber } from "wagmi";
 import { config } from "@/app/config";
 import { useAccount } from "wagmi";
 
@@ -26,14 +26,23 @@ import { FaSpinner } from "react-icons/fa";
 const Strategies = () => {
 
   const { address } = useAccount();
+
+  // State
   const [strategiesAddresses, setStrategiesAddresses] = useState([]);
   const [strategies, setStrategies] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [ currentBlockNumber, setCurrentBlockNumber ] = useState(0);
+
+  useWatchBlockNumber({
+    onBlockNumber(blockNumber) {
+      setCurrentBlockNumber(Number(blockNumber))
+    },
+  });
 
   useWatchContractEvent({
     address: contractFactoryAddress,
     abi: contractFactoryAbi,
-    fromBlock: BigInt(12500000),
+    fromBlock: BigInt(currentBlockNumber) - BigInt(4999),
     eventName: "StrategyCreated",
     onLogs(logs) {
       if (logs.length > 0) {
