@@ -10,7 +10,6 @@ import { contractAbi as contractStrategyAbi } from "@/constants/strategy";
 import { useWatchContractEvent } from "wagmi";
 import { config } from "@/app/config";
 import { useAccount } from "wagmi";
-import { ethers } from "ethers";
 
 // UI components
 import {
@@ -52,9 +51,6 @@ const Strategies = () => {
   })
 
   useEffect(() => {
-    console.log('strategy page load')
-    console.log(contractFactoryAddress)
-    console.log(contractFactoryAbi)
     setLoader(true);
   }, [])
 
