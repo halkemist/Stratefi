@@ -10,6 +10,7 @@ import { contractAbi as contractStrategyAbi } from "@/constants/strategy";
 import { useWatchContractEvent } from "wagmi";
 import { config } from "@/app/config";
 import { useAccount } from "wagmi";
+import { ethers } from "ethers";
 
 // UI components
 import {
@@ -32,6 +33,7 @@ const Strategies = () => {
   const [strategies, setStrategies] = useState([]);
   const [loader, setLoader] = useState(false);
 
+  // Watch events
   useWatchContractEvent({
     address: contractFactoryAddress,
     abi: contractFactoryAbi,
