@@ -64,23 +64,23 @@ const Governance = () => {
         lastCheckedBlock + 1,
         latestBlock
       );
+
+      const proposals = [];
   
       for (const event of events) {
-        getProposalState(event.args.proposalId)
-          .then((response) => {
-            event.args.state = beautifulState(response)
-          })
-          getProposalVotes(event.args.proposalId)
-          .then((response) => {
-            console.log(response)
-            event.args.votes = response
-          }).catch((error) => {
-            console.log(error)
-          })
+        const proposalData = { ...event.args };
+
+        const stateResponse = await getProposalState(proposalData.proposalId);
+        proposalData.state = beautifulState(stateResponse);
+
+        const votesReponse = await getProposalVotes(proposalData.proposalId);
+        proposalData.votes = votesReponse;
+
+        proposals.push(proposalData);
       }
 
       setTimeout(() => {
-        setProposals(events)
+        setProposals(proposals)
       }, 1000)
 
       lastCheckedBlock = latestBlock;
